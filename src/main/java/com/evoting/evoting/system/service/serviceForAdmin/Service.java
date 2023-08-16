@@ -1,8 +1,7 @@
 package com.evoting.evoting.system.service.serviceForAdmin;
 
-import com.evoting.evoting.system.domain.Administration;
-import com.evoting.evoting.system.dto.AdminRequest;
-import com.evoting.evoting.system.dto.Response;
+import com.evoting.evoting.system.dto.request.AdminRequest;
+import com.evoting.evoting.system.dto.response.Response;
 
 import java.util.List;
 

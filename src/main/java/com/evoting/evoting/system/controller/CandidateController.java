@@ -1,7 +1,7 @@
 package com.evoting.evoting.system.controller;
 
-import com.evoting.evoting.system.dto.CandidateRequest;
-import com.evoting.evoting.system.dto.Response;
+import com.evoting.evoting.system.dto.request.CandidateRequest;
+import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.service.serviceForCandidate.CandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +25,7 @@ public class CandidateController {
     Response updateCandidate(@RequestBody CandidateRequest candidateRequest){
         return candidateService.updateCandidate(candidateRequest);
     }
-    @DeleteMapping("/deleteAdmin/{delete}")
+    @DeleteMapping("/deleteCandidate{delete}")
     Response delete(@PathVariable("delete") Long id){
         return candidateService.delete(id);
     }

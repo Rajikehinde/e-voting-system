@@ -1,7 +1,7 @@
 package com.evoting.evoting.system.controller;
 
-import com.evoting.evoting.system.dto.AdminRequest;
-import com.evoting.evoting.system.dto.Response;
+import com.evoting.evoting.system.dto.request.AdminRequest;
+import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.service.serviceForAdmin.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +22,11 @@ public class AdminController {
         return service.fetchAllAdmin();
     }
     @PutMapping("/admin/update")
-    Response updateAdmin(@RequestBody AdminRequest adminRequest){
+    public Response updateAdmin(@RequestBody AdminRequest adminRequest){
         return service.updateAdmin(adminRequest);
     }
     @DeleteMapping("/delete/Admin/{delete}")
-    Response delete(@PathVariable("delete") Long id){
+    public Response delete(@PathVariable("delete") Long id){
         return service.delete(id);
     }
 }

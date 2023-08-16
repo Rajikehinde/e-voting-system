@@ -2,11 +2,10 @@ package com.evoting.evoting.system.service.serviceForAdmin;
 
 import com.evoting.evoting.system.domain.Administration;
 import com.evoting.evoting.system.domain.Role;
-import com.evoting.evoting.system.dto.AdminRequest;
+import com.evoting.evoting.system.dto.request.AdminRequest;
 import com.evoting.evoting.system.dto.Data;
-import com.evoting.evoting.system.dto.Response;
+import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.repository.AdministrationRepository;
-import com.evoting.evoting.system.repository.CandidatesRepository;
 import com.evoting.evoting.system.repository.RoleRepository;
 import com.evoting.evoting.system.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +26,8 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
     private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private CandidatesRepository candidatesRepository;
+//    @Autowired
+//    private CandidatesRepository candidatesRepository;
 
     public ServiceImpl(AdministrationRepository administrationRepository) {
         this.administrationRepository = administrationRepository;

@@ -1,5 +1,6 @@
-package com.evoting.evoting.system.dto;
+package com.evoting.evoting.system.dto.response;
 
+import com.evoting.evoting.system.dto.Data;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

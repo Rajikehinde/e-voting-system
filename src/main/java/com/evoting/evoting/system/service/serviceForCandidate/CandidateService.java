@@ -1,8 +1,7 @@
 package com.evoting.evoting.system.service.serviceForCandidate;
 
-import com.evoting.evoting.system.dto.AdminRequest;
-import com.evoting.evoting.system.dto.CandidateRequest;
-import com.evoting.evoting.system.dto.Response;
+import com.evoting.evoting.system.dto.request.CandidateRequest;
+import com.evoting.evoting.system.dto.response.Response;
 
 import java.util.List;
 

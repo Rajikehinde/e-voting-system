@@ -23,12 +23,10 @@ public class Administration {
     private String lastName;
     private String middleName;
     private String firstName;
-    private String username;
+    private String username; //TODO: to be refactored by using email rather than this username;
     private String password;
     private String email;
     private String phoneNumber;
-    private String permissions;
-    private String securityLevel;
     private Boolean deleteStatus;
     private LocalDate dateOfBirth;
     private boolean status;
