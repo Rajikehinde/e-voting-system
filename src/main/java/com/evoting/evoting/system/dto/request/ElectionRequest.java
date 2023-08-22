@@ -1,15 +1,15 @@
 package com.evoting.evoting.system.dto.request;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.util.Map;
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ViewResultResponse {
-    Map<String, String> result;
+@Builder
+public class ElectionRequest {
+
+    private String time;
 }

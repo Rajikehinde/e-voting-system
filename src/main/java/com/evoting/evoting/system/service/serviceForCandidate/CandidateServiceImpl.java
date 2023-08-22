@@ -1,14 +1,11 @@
 package com.evoting.evoting.system.service.serviceForCandidate;
 
 import com.evoting.evoting.system.domain.Candidate;
-import com.evoting.evoting.system.domain.Politics;
 import com.evoting.evoting.system.dto.request.CandidateRequest;
 import com.evoting.evoting.system.dto.Data;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.repository.CandidatesRepository;
 import com.evoting.evoting.system.utils.ResponseUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,8 +18,11 @@ public class CandidateServiceImpl implements CandidateService{
 //    private RoleRepository roleRepository;
 //    @Autowired
 //    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private CandidatesRepository candidatesRepository;
+    private final CandidatesRepository candidatesRepository;
+
+    public CandidateServiceImpl(CandidatesRepository candidatesRepository) {
+        this.candidatesRepository = candidatesRepository;
+    }
 
     @Override
     public Response registerCandidate(CandidateRequest candidateRequest) {
@@ -34,22 +34,36 @@ public class CandidateServiceImpl implements CandidateService{
                     .data(null)
                     .build();
         }
-        Politics candidates = new Politics();
-        candidates.setFirstName(candidateRequest.getFirstName());
-        candidates.setLastName(candidateRequest.getLastName());
-        candidates.setMiddleName(candidateRequest.getMiddleName());
-        candidates.setEmail(candidateRequest.getEmail());
-        candidates.setDateOfBirth(candidateRequest.getDateOfBirth());
-        candidates.setPhoneNumber(candidateRequest.getPhoneNumber());
-        candidates.setPhoto(candidateRequest.getPhoto());
-        candidates.setBiography(candidateRequest.getBiography());
-        candidates.setSocialMediaHandles(candidateRequest.getSocialMediaHandles());
-        candidates.setCandidateType(candidateRequest.getCandidateType());
-//        candidates.setPoliticalParty(candidateRequest.getPoliticalParty());
-        candidates.setCampaignWebsite(candidateRequest.getCampaignWebsite());
-        candidates.setSlogan(candidateRequest.getSlogan());
-
-        Candidate savedCandidate = candidatesRepository.save(candidates);
+//        Politics candidates = new Politics();
+//        candidates.setFirstName(candidateRequest.getFirstName());
+//        candidates.setLastName(candidateRequest.getLastName());
+//        candidates.setMiddleName(candidateRequest.getMiddleName());
+//        candidates.setEmail(candidateRequest.getEmail());
+//        candidates.setDateOfBirth(candidateRequest.getDateOfBirth());
+//        candidates.setPhoneNumber(candidateRequest.getPhoneNumber());
+//        candidates.setPhoto(candidateRequest.getPhoto());
+//        candidates.setBiography(candidateRequest.getBiography());
+//        candidates.setSocialMediaHandles(candidateRequest.getSocialMediaHandles());
+//        candidates.setCandidateType(candidateRequest.getCandidateType());
+////        candidates.setPoliticalParty(candidateRequest.getPoliticalParty());
+//        candidates.setCampaignWebsite(candidateRequest.getCampaignWebsite());
+//        candidates.setSlogan(candidateRequest.getSlogan());
+        Candidate candidate = Candidate.builder()
+                .firstName(candidateRequest.getFirstName())
+                .lastName(candidateRequest.getLastName())
+                .middleName(candidateRequest.getMiddleName())
+                .email(candidateRequest.getEmail())
+                .dateOfBirth(candidateRequest.getDateOfBirth())
+                .phoneNumber(candidateRequest.getPhoneNumber())
+                .biography(candidateRequest.getBiography())
+                .socialMediaHandles(candidateRequest.getSocialMediaHandles())
+                .campaignWebsite(candidateRequest.getCampaignWebsite())
+                .slogan(candidateRequest.getSlogan())
+                .voteCategory(candidateRequest.getVoteCategory())
+                .party(candidateRequest.getParty())
+                .Photo(candidateRequest.getPhoto())
+                .build();
+        Candidate savedCandidate = candidatesRepository.save(candidate);
         return Response.builder()
                 .code(ResponseUtils.USER_REGISTER_CODE)
                 .message(ResponseUtils.USER_REGISTER_MESSAGE)
@@ -61,7 +75,7 @@ public class CandidateServiceImpl implements CandidateService{
 
     @Override
     public List<Response> fetchAllCandidates() {
-        List<Politics> candidates = candidatesRepository.findAll();
+        List<Candidate> candidates = candidatesRepository.findAll();
 
         //response on all the customers and there details
         List<Response> responseList = new ArrayList<>();
@@ -87,21 +101,37 @@ public class CandidateServiceImpl implements CandidateService{
                     .data(null)
                     .build();
         }
-        Politics candidate = new Politics();
-        candidatesRepository.findByEmail(candidateRequest.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-                candidate.setFirstName(candidateRequest.getFirstName());
-                candidate.setMiddleName(candidateRequest.getMiddleName());
-                candidate.setLastName(candidateRequest.getLastName());
-                candidate.setEmail(candidateRequest.getEmail());
-                candidate.setDateOfBirth(candidateRequest.getDateOfBirth());
-                candidate.setPhoneNumber(candidateRequest.getPhoneNumber());
-//                candidate.setPoliticalParty(candidateRequest.getPoliticalParty());
-                candidate.setSlogan(candidateRequest.getSlogan());
-                candidate.setCampaignWebsite(candidateRequest.getCampaignWebsite());
-                candidate.setSocialMediaHandles(candidateRequest.getSocialMediaHandles());
-                candidate.setPhoto(candidateRequest.getPhoto());
-        Candidate savedCandidate = candidatesRepository.save(candidate);
+//        Politics candidate = new Politics();
+//        candidatesRepository.findByEmail(candidateRequest.getEmail())
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//                candidate.setFirstName(candidateRequest.getFirstName());
+//                candidate.setMiddleName(candidateRequest.getMiddleName());
+//                candidate.setLastName(candidateRequest.getLastName());
+//                candidate.setEmail(candidateRequest.getEmail());
+//                candidate.setDateOfBirth(candidateRequest.getDateOfBirth());
+//                candidate.setPhoneNumber(candidateRequest.getPhoneNumber());
+////                candidate.setPoliticalParty(candidateRequest.getPoliticalParty());
+//                candidate.setSlogan(candidateRequest.getSlogan());
+//                candidate.setCampaignWebsite(candidateRequest.getCampaignWebsite());
+//                candidate.setSocialMediaHandles(candidateRequest.getSocialMediaHandles());
+//                candidate.setPhoto(candidateRequest.getPhoto());
+//        Candidate savedCandidate = candidatesRepository.save(candidate);
+        Candidate candidate = Candidate.builder()
+                .firstName(candidateRequest.getFirstName())
+                .lastName(candidateRequest.getLastName())
+                .middleName(candidateRequest.getMiddleName())
+                .email(candidateRequest.getEmail())
+                .dateOfBirth(candidateRequest.getDateOfBirth())
+                .phoneNumber(candidateRequest.getPhoneNumber())
+                .biography(candidateRequest.getBiography())
+                .socialMediaHandles(candidateRequest.getSocialMediaHandles())
+                .campaignWebsite(candidateRequest.getCampaignWebsite())
+                .slogan(candidateRequest.getSlogan())
+                .voteCategory(candidateRequest.getVoteCategory())
+                .Photo(candidateRequest.getPhoto())
+                .build();
+                Candidate savedCandidate = candidatesRepository.save(candidate);
+
         return Response.builder()
                 .code(ResponseUtils.USER_PROFILE_UPDATE_CODE)
                 .message(ResponseUtils.USER_PROFILE_UPDATE_MESSAGE)
@@ -121,7 +151,7 @@ public class CandidateServiceImpl implements CandidateService{
                     .data(null)
                     .build();
         }
-        Optional<Politics> candidate = candidatesRepository.findById(id);
+        Optional<Candidate> candidate = candidatesRepository.findById(id);
         candidate.get().setDeleteStatus(true);
         Candidate saveCustomerInfo = candidatesRepository.save(candidate.get());
 

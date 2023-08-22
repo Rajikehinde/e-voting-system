@@ -8,6 +8,7 @@ import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.repository.AdministrationRepository;
 import com.evoting.evoting.system.repository.RoleRepository;
 import com.evoting.evoting.system.utils.ResponseUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,17 +18,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
+@Slf4j
 @Service
 public class ServiceImpl implements com.evoting.evoting.system.service.serviceForAdmin.Service {
-
+    @Autowired
     private final AdministrationRepository administrationRepository;
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-//    @Autowired
-//    private CandidatesRepository candidatesRepository;
 
     public ServiceImpl(AdministrationRepository administrationRepository) {
         this.administrationRepository = administrationRepository;
@@ -52,9 +51,11 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
                 .password(passwordEncoder.encode(adminRequest.getPassword()))
                 .phoneNumber(adminRequest.getPhoneNumber())
                 .dateOfBirth(adminRequest.getDateOfBirth())
+                .status(true)
                 .build();
 
         Role role = roleRepository.findByRoleName("ROLE_ADMIN").get();
+        log.info("give me the role" + role);
         administration.setRole(Collections.singleton(role));
 
         Administration savedAdmin = administrationRepository.save(administration);

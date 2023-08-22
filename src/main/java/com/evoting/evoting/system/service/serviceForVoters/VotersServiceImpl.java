@@ -1,7 +1,9 @@
 package com.evoting.evoting.system.service.serviceForVoters;
 
 import com.evoting.evoting.system.domain.Voter;
+import com.evoting.evoting.system.domain.enmPackage.Gender;
 import com.evoting.evoting.system.dto.Data;
+import com.evoting.evoting.system.dto.request.CastVoteRequest;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.dto.request.VotersRequest;
 import com.evoting.evoting.system.repository.VotersRepository;
@@ -17,6 +19,7 @@ import java.util.Optional;
 public class VotersServiceImpl implements VotersService{
     @Autowired
     private VotersRepository votersRepository;
+
     @Override
     public Response registerVoters(VotersRequest votersRequest) {
         Boolean isExist = votersRepository.existsByEmail(votersRequest.getEmail());
@@ -33,9 +36,13 @@ public class VotersServiceImpl implements VotersService{
                 .lastName(votersRequest.getLastName())
                 .email(votersRequest.getEmail())
                 .username(votersRequest.getUsername())
-                .gender(votersRequest.getGender())
+                .gender(Gender.valueOf(votersRequest.getGender()))
                 .phoneNumber(votersRequest.getPhoneNumber())
                 .dateOfBirth(votersRequest.getDateOfBirth())
+                .address(votersRequest.getAddress())
+                .state(votersRequest.getState())
+                .localGovernment(votersRequest.getLocalGovernment())
+
                 .build();
 
         Voter savedVoters = votersRepository.save(voters);
@@ -46,6 +53,31 @@ public class VotersServiceImpl implements VotersService{
                         .name(savedVoters.getFirstName() + " " + savedVoters.getMiddleName() + " " + savedVoters.getLastName())
                         .build())
                 .build();
+    }
+
+    @Override
+    public Response castVoteForPresidency(CastVoteRequest castVoteRequest) {
+        return null;
+    }
+
+    @Override
+    public Response castVoteForGovernorship(CastVoteRequest castVoteRequest) {
+        return null;
+    }
+
+    @Override
+    public Response castVoteForHouseOfRepresentative(CastVoteRequest castVoteRequest) {
+        return null;
+    }
+
+    @Override
+    public Response castVoteForSenate(CastVoteRequest castVoteRequest) {
+        return null;
+    }
+
+    @Override
+    public Response castVoteForHouseOfAssembly(CastVoteRequest castVoteRequest) {
+        return null;
     }
 
     @Override
@@ -83,7 +115,7 @@ public class VotersServiceImpl implements VotersService{
         voter.setLastName(votersRequest.getLastName());
         voter.setEmail(votersRequest.getEmail());
         voter.setUsername(votersRequest.getUsername());
-        voter.setGender(votersRequest.getGender());
+        voter.setGender(Gender.valueOf(votersRequest.getGender()));
         voter.setDateOfBirth(votersRequest.getDateOfBirth());
         voter.setPhoneNumber(votersRequest.getPhoneNumber());
         Voter savedVotes = votersRepository.save(voter);

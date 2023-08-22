@@ -17,10 +17,10 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthServiceImpl implements AuthService{
 
-    private AdministrationRepository administrationRepository;
-    private AuthenticationManager authenticationManager;
+    private final AdministrationRepository administrationRepository;
+    private final AuthenticationManager authenticationManager;
     private PasswordEncoder passwordEncoder;
-    private JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
     public AuthServiceImpl(AdministrationRepository administrationRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.administrationRepository = administrationRepository;
         this.authenticationManager = authenticationManager;

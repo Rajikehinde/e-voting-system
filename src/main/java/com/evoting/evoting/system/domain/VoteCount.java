@@ -9,15 +9,18 @@ import lombok.*;
 @NoArgsConstructor
 @Setter
 @Getter
+@Table(name = "voteCounts")
 public class VoteCount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long voterId;
-    private Long candidateId;
-    private Long electionId;
+    private Long voteCount_id;
+    private long voterCount;
 
-//    @OneToOne
-//    @JoinColumn(name = "voter_id")
-//    private Voter voter;
+    @ManyToOne
+    @JoinColumn(name = "voterId")
+    private Voter voter;
+
+    @ManyToOne
+    @JoinColumn(name = "candidateId")
+    private Candidate candidate;
 }

@@ -1,5 +1,7 @@
 package com.evoting.evoting.system.dto.request;
 
+import com.evoting.evoting.system.domain.enmPackage.Party;
+import com.evoting.evoting.system.domain.enmPackage.VoteCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CastVoteRequest {
-    private String party;
-    private String VoteCategory;
+    private Party party;
+//    private VoteCategory voteCategory;
     private String email;
-    private String password;
+//    private String password;
 }

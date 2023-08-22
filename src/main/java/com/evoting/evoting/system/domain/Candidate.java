@@ -8,13 +8,13 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.List;
 
-@MappedSuperclass
-//@EntityListeners(Politics.class)
 @AllArgsConstructor
 @NoArgsConstructor
-//@Builder
+@Builder
 @Getter
 @Setter
+@Entity
+@Table(name = "candidate")
 public class Candidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,14 +26,29 @@ public class Candidate {
     private String biography;
     private String email;
     private String phoneNumber;
+    private long voteCount;
     private String socialMediaHandles;
     private Boolean deleteStatus;
     private String Photo;
-    @Enumerated(value = EnumType.STRING)
-    private VoteCategory candidateType;
+    @Enumerated(EnumType.STRING)
+    private Party party;
+//    private VoteCategory candidateType;
+    private String slogan;
+    @Enumerated(EnumType.STRING)
+    private VoteCategory voteCategory;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinTable(name = "Candidate_role", joinColumns = @JoinColumn(name = "Candidate_id",referencedColumnName = "candidateId"),
-            inverseJoinColumns = @JoinColumn(name = "election_id",referencedColumnName = "electionId"))
-    private List<Election> election;
+    private String campaignWebsite;
+
+
+    // TODO: 8/17/2023 This needs to change to many to one
+//    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+//    @JoinTable(name = "Candidate_role", joinColumns = @JoinColumn(name = "Candidate_id",referencedColumnName = "candidateId"),
+//            inverseJoinColumns = @JoinColumn(name = "election_id",referencedColumnName = "electionId"))
+//    private List<Election> election;
+    @ManyToOne
+    @JoinColumn(name = "electionId")
+    private Election election;
+
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
+    private List<VoteCount> voteCounts;
 }

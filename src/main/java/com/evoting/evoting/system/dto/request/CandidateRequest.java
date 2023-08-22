@@ -1,5 +1,7 @@
 package com.evoting.evoting.system.dto.request;
 
+import com.evoting.evoting.system.domain.VoteCount;
+import com.evoting.evoting.system.domain.enmPackage.Party;
 import com.evoting.evoting.system.domain.enmPackage.VoteCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,10 +22,11 @@ public class CandidateRequest {
     private String biography;
     private String email;
     private String phoneNumber;
-    private VoteCategory candidateType;
-    private String politicalParty;
+    private VoteCategory voteCategory;
     private String slogan;
+    private VoteCount voteCount;
     private String campaignWebsite;
     private String socialMediaHandles;
     private String Photo;
+    private Party party;
 }
