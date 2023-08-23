@@ -6,6 +6,8 @@ import com.evoting.evoting.system.dto.Data;
 import com.evoting.evoting.system.dto.request.CastVoteRequest;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.dto.request.VotersRequest;
+import com.evoting.evoting.system.email.emailDto.EmailDetails;
+import com.evoting.evoting.system.email.emailService.EmailService;
 import com.evoting.evoting.system.repository.VotersRepository;
 import com.evoting.evoting.system.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 @Service
 public class VotersServiceImpl implements VotersService{
+    @Autowired
+    EmailService emailService;
     @Autowired
     private VotersRepository votersRepository;
 
@@ -42,10 +46,18 @@ public class VotersServiceImpl implements VotersService{
                 .address(votersRequest.getAddress())
                 .state(votersRequest.getState())
                 .localGovernment(votersRequest.getLocalGovernment())
-
                 .build();
 
         Voter savedVoters = votersRepository.save(voters);
+
+        //appending email response to the account
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedVoters.getEmail())
+                .subject("Account Creation")
+                .messageBody("CONGRATULATION! Your Account Has Been Successfully Created.\nYour Account Details: \n" +
+                        "Account Name: " + savedVoters.getFirstName() + " " + savedVoters.getMiddleName() + " " + savedVoters.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
         return Response.builder()
                 .code(ResponseUtils.USER_REGISTER_CODE)
                 .message(ResponseUtils.USER_REGISTER_MESSAGE)
@@ -118,7 +130,19 @@ public class VotersServiceImpl implements VotersService{
         voter.setGender(Gender.valueOf(votersRequest.getGender()));
         voter.setDateOfBirth(votersRequest.getDateOfBirth());
         voter.setPhoneNumber(votersRequest.getPhoneNumber());
+        voter.setAddress(votersRequest.getAddress());
+        voter.setState(voter.getState());
+        voter.setLocalGovernment(votersRequest.getLocalGovernment());
         Voter savedVotes = votersRepository.save(voter);
+
+        //appending email response to the account
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedVotes.getEmail())
+                .subject("Account Creation")
+                .messageBody("CONGRATULATION! Your Account Has Been Successfully Updated.\nYour Account Details: \n" +
+                        "Account Name: " + savedVotes.getFirstName() + " " + savedVotes.getMiddleName() + " " + savedVotes.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
         return Response.builder()
                 .code(ResponseUtils.USER_PROFILE_UPDATE_CODE)
                 .message(ResponseUtils.USER_PROFILE_UPDATE_MESSAGE)

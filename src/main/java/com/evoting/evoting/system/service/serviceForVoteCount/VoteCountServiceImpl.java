@@ -8,6 +8,8 @@ import com.evoting.evoting.system.domain.enmPackage.VoteCategory;
 import com.evoting.evoting.system.dto.request.CastVoteRequest;
 import com.evoting.evoting.system.dto.request.ViewResultResponse;
 import com.evoting.evoting.system.dto.response.Response;
+import com.evoting.evoting.system.email.emailDto.EmailDetails;
+import com.evoting.evoting.system.email.emailService.EmailService;
 import com.evoting.evoting.system.exception.AlreadyVotedException;
 import com.evoting.evoting.system.repository.CandidatesRepository;
 import com.evoting.evoting.system.repository.VoteCountRepository;
@@ -26,6 +28,8 @@ import java.util.Optional;
 @Service
 
 public class VoteCountServiceImpl implements VoteCountService{
+    @Autowired
+    EmailService emailService;
     @Autowired
     private VotersRepository votersRepository;
     @Autowired
@@ -50,8 +54,15 @@ public class VoteCountServiceImpl implements VoteCountService{
         }catch (Exception e){
             throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
         }
-        votersRepository.save(voter);
+        Voter savedVotes = votersRepository.save(voter);
 
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedVotes.getEmail())
+                .subject("Voting")
+                .messageBody("Thank you for exercising your franchise.\n" +
+                        "Voter's Name: " + savedVotes.getFirstName() + " " + savedVotes.getMiddleName() + " " + savedVotes.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
 //        if (!(castVoteRequest.getVoteCategory()).equals(VoteCategory.PRESIDENCY)){
 //            throw new RuntimeException("Invalid vote category");
 //        }
@@ -94,6 +105,16 @@ public class VoteCountServiceImpl implements VoteCountService{
         }catch (Exception e){
             throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
         }
+        Voter savedVote = votersRepository.save(voter);
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedVote.getEmail())
+                .subject("Voting")
+                .messageBody("Thank you for exercising your franchise.\n" +
+                        "Voter's Name: " + savedVote.getFirstName() + " " + savedVote.getMiddleName() + " " + savedVote.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
+
         Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.GOVERNOR,castVoteRequest.getParty());
         if (optionalCandidate.isEmpty()){
             Response.builder()
@@ -106,7 +127,6 @@ public class VoteCountServiceImpl implements VoteCountService{
         candidate.setVoteCount(candidate.getVoteCount() + 1);
         voter.setHasVotedForGovernor(true);
 
-        votersRepository.save(voter);
         candidatesRepository.save(candidate);
         VoteCount voteCount = VoteCount.builder()
                 .candidate(candidate)
@@ -133,6 +153,16 @@ public class VoteCountServiceImpl implements VoteCountService{
         }catch (Exception e){
             throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
         }
+        Voter voteRepo = votersRepository.save(voter);
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(voteRepo.getEmail())
+                .subject("Voting")
+                .messageBody("Thank you for exercising your franchise.\n" +
+                        "Voter's Name: " + voteRepo.getFirstName() + " " + voteRepo.getMiddleName() + " " + voteRepo.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
+
         Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.SENATE,castVoteRequest.getParty());
         if (optionalCandidate.isEmpty()){
             Response.builder()
@@ -145,7 +175,6 @@ public class VoteCountServiceImpl implements VoteCountService{
         candidate.setVoteCount(candidate.getVoteCount() + 1);
         voter.setHasVotedForSenateMember(true);
 
-        votersRepository.save(voter);
         candidatesRepository.save(candidate);
         VoteCount voteCount = VoteCount.builder()
                 .candidate(candidate)
@@ -172,6 +201,16 @@ public class VoteCountServiceImpl implements VoteCountService{
         }catch (Exception e){
             throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
         }
+        Voter sazo = votersRepository.save(voter);
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(sazo.getEmail())
+                .subject("Voting")
+                .messageBody("Thank you for exercising your franchise.\n" +
+                        "Voter's Name: " + sazo.getFirstName() + " " + sazo.getMiddleName() + " " + sazo.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
+
         Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.HOUSE_OF_ASSEMBLY,castVoteRequest.getParty());
         if (optionalCandidate.isEmpty()){
             Response.builder()
@@ -184,7 +223,6 @@ public class VoteCountServiceImpl implements VoteCountService{
         candidate.setVoteCount(candidate.getVoteCount() + 1);
         voter.setHasVotedForHouseOfAssemblyMember(true);
 
-        votersRepository.save(voter);
         candidatesRepository.save(candidate);
         VoteCount voteCount = VoteCount.builder()
                 .candidate(candidate)
@@ -212,6 +250,14 @@ public class VoteCountServiceImpl implements VoteCountService{
             throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
         }
 
+        Voter vot = votersRepository.save(voter);
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(vot.getEmail())
+                .subject("Voting")
+                .messageBody("Thank you for exercising your franchise.\n" +
+                        "Voter's Name: " + vot.getFirstName() + " " + vot.getMiddleName() + " " + vot.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
         Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.HOUSE_OF_REPRESENTATIVE,castVoteRequest.getParty());
         if (optionalCandidate.isEmpty()){
             Response.builder()
@@ -224,7 +270,6 @@ public class VoteCountServiceImpl implements VoteCountService{
         candidate.setVoteCount(candidate.getVoteCount() + 1);
         voter.setHasVotedForHouseOfRepMember(true);
 
-        votersRepository.save(voter);
         candidatesRepository.save(candidate);
         VoteCount voteCount = VoteCount.builder()
                 .candidate(candidate)

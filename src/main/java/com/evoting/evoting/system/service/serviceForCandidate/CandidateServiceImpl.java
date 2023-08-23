@@ -4,8 +4,12 @@ import com.evoting.evoting.system.domain.Candidate;
 import com.evoting.evoting.system.dto.request.CandidateRequest;
 import com.evoting.evoting.system.dto.Data;
 import com.evoting.evoting.system.dto.response.Response;
+import com.evoting.evoting.system.email.emailDto.EmailDetails;
+import com.evoting.evoting.system.email.emailService.EmailService;
+import com.evoting.evoting.system.exception.AlreadyVotedException;
 import com.evoting.evoting.system.repository.CandidatesRepository;
 import com.evoting.evoting.system.utils.ResponseUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,6 +22,9 @@ public class CandidateServiceImpl implements CandidateService{
 //    private RoleRepository roleRepository;
 //    @Autowired
 //    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    EmailService emailService;
     private final CandidatesRepository candidatesRepository;
 
     public CandidateServiceImpl(CandidatesRepository candidatesRepository) {
@@ -64,6 +71,19 @@ public class CandidateServiceImpl implements CandidateService{
                 .Photo(candidateRequest.getPhoto())
                 .build();
         Candidate savedCandidate = candidatesRepository.save(candidate);
+        try {
+
+        }catch (Exception e){
+            throw new AlreadyVotedException("Thanks for your participation. No slot for this category");
+        }
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedCandidate.getEmail())
+                .subject("Voting")
+                .messageBody("Thank you for exercising your franchise.\n" +
+                        "Voter's Name: " + savedCandidate.getFirstName() + " " + savedCandidate.getMiddleName() + " " + savedCandidate.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
         return Response.builder()
                 .code(ResponseUtils.USER_REGISTER_CODE)
                 .message(ResponseUtils.USER_REGISTER_MESSAGE)
@@ -131,6 +151,14 @@ public class CandidateServiceImpl implements CandidateService{
                 .Photo(candidateRequest.getPhoto())
                 .build();
                 Candidate savedCandidate = candidatesRepository.save(candidate);
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedCandidate.getEmail())
+                .subject("Voting")
+                .messageBody("Thank you for exercising your franchise.\n" +
+                        "Voter's Name: " + savedCandidate.getFirstName() + " " + savedCandidate.getMiddleName() + " " + savedCandidate.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
 
         return Response.builder()
                 .code(ResponseUtils.USER_PROFILE_UPDATE_CODE)

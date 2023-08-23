@@ -5,6 +5,8 @@ import com.evoting.evoting.system.domain.Role;
 import com.evoting.evoting.system.dto.request.AdminRequest;
 import com.evoting.evoting.system.dto.Data;
 import com.evoting.evoting.system.dto.response.Response;
+import com.evoting.evoting.system.email.emailDto.EmailDetails;
+import com.evoting.evoting.system.email.emailService.EmailService;
 import com.evoting.evoting.system.repository.AdministrationRepository;
 import com.evoting.evoting.system.repository.RoleRepository;
 import com.evoting.evoting.system.utils.ResponseUtils;
@@ -21,6 +23,8 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class ServiceImpl implements com.evoting.evoting.system.service.serviceForAdmin.Service {
+    @Autowired
+    EmailService emailService;
     @Autowired
     private final AdministrationRepository administrationRepository;
     @Autowired
@@ -59,6 +63,14 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
         administration.setRole(Collections.singleton(role));
 
         Administration savedAdmin = administrationRepository.save(administration);
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedAdmin.getEmail())
+                .subject("Admin")
+                .messageBody("This user successfully registered as the admin.\n" +
+                        "Admin Name: " + savedAdmin.getFirstName() + " " + savedAdmin.getMiddleName() + " " + savedAdmin.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
         return Response.builder()
                 .code(ResponseUtils.USER_REGISTER_CODE)
                 .message(ResponseUtils.USER_REGISTER_MESSAGE)
@@ -109,6 +121,14 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
                         administration.setDateOfBirth(adminRequest.getDateOfBirth());
 
         Administration savedAdmin = administrationRepository.save(administration);
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipient(savedAdmin.getEmail())
+                .subject("Admin")
+                .messageBody("This profile successfully updated.\n" +
+                        "Admin Name: " + savedAdmin.getFirstName() + " " + savedAdmin.getMiddleName() + " " + savedAdmin.getLastName())
+                .build();
+        emailService.sendSimpleEmail(emailDetails);
         return Response.builder()
                 .code(ResponseUtils.USER_PROFILE_UPDATE_CODE)
                 .message(ResponseUtils.USER_PROFILE_UPDATE_MESSAGE)
