@@ -58,6 +58,8 @@ public class SecurityConfig {
                                         .requestMatchers(HttpMethod.GET,"/api/fetchAllAdmin").hasAuthority("ROLE_ADMIN")
                                         .requestMatchers(HttpMethod.PUT,"/api/admin/update").hasAuthority("ROLE_ADMIN")
                                         .requestMatchers(HttpMethod.DELETE,"/api/delete/Admin").hasAuthority("ROLE_ADMIN")
+                                        .requestMatchers("/api/otp/verify").permitAll()
+
 
                                         .requestMatchers(HttpMethod.POST,"/api/candidate/registration").permitAll()
 //                                        .requestMatchers(HttpMethod.POST,"/api/admin/login").permitAll()

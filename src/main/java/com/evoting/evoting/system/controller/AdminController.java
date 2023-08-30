@@ -3,6 +3,7 @@ package com.evoting.evoting.system.controller;
 import com.evoting.evoting.system.dto.request.AdminRequest;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.service.serviceForAdmin.Service;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class AdminController {
     @Autowired
     private Service service;
     @PostMapping("/register/Admin")
-    public Response registerAdmin(@RequestBody AdminRequest adminRequest){
+    public Response registerAdmin(@RequestBody AdminRequest adminRequest) throws UnirestException {
         return service.registerAdmin(adminRequest);
     }
     @GetMapping("/fetchAllAdmin")

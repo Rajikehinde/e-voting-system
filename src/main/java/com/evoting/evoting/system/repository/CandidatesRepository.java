@@ -15,6 +15,7 @@ import java.util.Optional;
 public interface CandidatesRepository extends JpaRepository<Candidate,Long> {
     Boolean existsByEmail (String email);
     Optional<Candidate> findFirstByVoteCategoryAndParty (VoteCategory voteCategory,Party party);
+    Boolean existsByVoteCategoryAndParty(VoteCategory voteCategory, Party party);
     Optional<Candidate> findByEmail (String email);
     List<Candidate> findByVoteCategory(VoteCategory voteCategory);
 }

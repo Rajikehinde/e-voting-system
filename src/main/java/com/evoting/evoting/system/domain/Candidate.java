@@ -36,8 +36,12 @@ public class Candidate {
     private String slogan;
     @Enumerated(EnumType.STRING)
     private VoteCategory voteCategory;
-
     private String campaignWebsite;
+    private boolean hasVotedForGovernor;
+    private boolean hasVotedForPresident;
+    private boolean hasVotedForHouseOfRepMember;
+    private boolean hasVotedForSenateMember;
+    private boolean hasVotedForHouseOfAssemblyMember;
 
 
     // TODO: 8/17/2023 This needs to change to many to one

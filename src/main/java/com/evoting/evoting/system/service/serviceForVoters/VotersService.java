@@ -3,17 +3,14 @@ package com.evoting.evoting.system.service.serviceForVoters;
 import com.evoting.evoting.system.dto.request.CastVoteRequest;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.dto.request.VotersRequest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 import java.util.List;
 
 public interface VotersService {
-    Response registerVoters (VotersRequest votersRequest);
-    Response castVoteForPresidency(CastVoteRequest castVoteRequest);
-    Response castVoteForGovernorship(CastVoteRequest castVoteRequest);
-    Response castVoteForHouseOfRepresentative(CastVoteRequest castVoteRequest);
-    Response castVoteForSenate(CastVoteRequest castVoteRequest);
-    Response castVoteForHouseOfAssembly(CastVoteRequest castVoteRequest);
+    Response registerVoters (VotersRequest votersRequest) throws UnirestException;
     List<Response> fetchAllVoters();
     Response updateVoters(VotersRequest votersRequest);
     Response delete(Long id);
+    boolean canVote(Long voterId, Long electionId);
 }

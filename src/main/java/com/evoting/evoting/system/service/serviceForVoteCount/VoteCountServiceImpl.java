@@ -17,6 +17,7 @@ import com.evoting.evoting.system.repository.VotersRepository;
 import com.evoting.evoting.system.service.serviceForAuth.AuthServiceImpl;
 import com.evoting.evoting.system.utils.ResponseUtils;
 import com.evoting.evoting.system.utils.Utils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-@Service
 
-public class VoteCountServiceImpl implements VoteCountService{
+@Service
+public class VoteCountServiceImpl implements VoteCountService {
     @Autowired
     EmailService emailService;
     @Autowired
@@ -37,103 +38,166 @@ public class VoteCountServiceImpl implements VoteCountService{
     @Autowired
     private CandidatesRepository candidatesRepository;
     @Autowired
-   private AuthServiceImpl authService;
+    private AuthServiceImpl authService;
     @Autowired
     private Utils utils;
 
     @Override
     public Response castVoteForPresidency(CastVoteRequest castVoteRequest) {
-        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-        try {
-            if (voter.isHasVotedForPresident()){
-                return Response.builder()
-                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
-                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
-                        .build();
-            }
-        }catch (Exception e){
-            throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
-        }
-        Voter savedVotes = votersRepository.save(voter);
-
-        EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(savedVotes.getEmail())
-                .subject("Voting")
-                .messageBody("Thank you for exercising your franchise.\n" +
-                        "Voter's Name: " + savedVotes.getFirstName() + " " + savedVotes.getMiddleName() + " " + savedVotes.getLastName())
-                .build();
-        emailService.sendSimpleEmail(emailDetails);
-//        if (!(castVoteRequest.getVoteCategory()).equals(VoteCategory.PRESIDENCY)){
-//            throw new RuntimeException("Invalid vote category");
-//        }
-//        Optional<Candidate> optionalCandidate = Optional.ofNullable(utils.checkCandidateValidity(castVoteRequest).orElseThrow(() -> new UsernameNotFoundException("Candidate not existed")));
-       Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.PRESIDENCY,castVoteRequest.getParty());
-        if (optionalCandidate.isEmpty()){
+        boolean voterExists = votersRepository.existsByEmail(castVoteRequest.getEmail());
+        boolean candidateExists = candidatesRepository.existsByEmail(castVoteRequest.getEmail());
+        //finding voters and candidate in the database
+        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.PRESIDENCY, castVoteRequest.getParty());
+        if (optionalCandidate.isEmpty()) {
             Response.builder()
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_CODE)
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
                     .build();
         }
+        //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
-        candidate.setVoteCategory(VoteCategory.PRESIDENCY);
-        candidate.setVoteCount(candidate.getVoteCount() + 1);
-        voter.setHasVotedForPresident(true);
+        if (voterExists) {
+            Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
+            if (voter.isHasVotedForPresident()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+//            Voter savedVotes = votersRepository.save(voter);
 
-        candidatesRepository.save(candidate);
-        VoteCount voteCount = VoteCount.builder()
-                .candidate(candidate)
-                .voter(voter)
-                .voterCount(1L)
-                .build();
-        voteCountRepository.save(voteCount);
+            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            voter.setHasVotedForPresident(true);
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(voter)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetails = EmailDetails.builder()
+                    .recipient(voter.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetails);
+
+        }else if (candidateExists) {
+            Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(()-> new RuntimeException("Candidate not found"));
+            if (can.isHasVotedForPresident()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+//            Candidate savedVot = candidatesRepository.save(can);
+
+            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            can.setHasVotedForPresident(true);
+
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(null)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetail = EmailDetails.builder()
+                    .recipient(can.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetail);
+
+        }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
                 .message(ResponseUtils.VOTE_CASTED_MESSAGE)
                 .build();
     }
-
     @Override
     public Response castVoteForGovernor(CastVoteRequest castVoteRequest) {
-        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-        try {
-            if (voter.isHasVotedForGovernor()){
-                return Response.builder()
-                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
-                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
-                        .build();
-            }
-        }catch (Exception e){
-            throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
-        }
-        Voter savedVote = votersRepository.save(voter);
-
-        EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(savedVote.getEmail())
-                .subject("Voting")
-                .messageBody("Thank you for exercising your franchise.\n" +
-                        "Voter's Name: " + savedVote.getFirstName() + " " + savedVote.getMiddleName() + " " + savedVote.getLastName())
-                .build();
-        emailService.sendSimpleEmail(emailDetails);
-
-        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.GOVERNOR,castVoteRequest.getParty());
-        if (optionalCandidate.isEmpty()){
+        boolean voterExists = votersRepository.existsByEmail(castVoteRequest.getEmail());
+        boolean candidateExists = candidatesRepository.existsByEmail(castVoteRequest.getEmail());
+        //finding voters and candidate in the database
+        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.GOVERNOR, castVoteRequest.getParty());
+        if (optionalCandidate.isEmpty()) {
             Response.builder()
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_CODE)
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
                     .build();
         }
+        //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
-        candidate.setVoteCategory(VoteCategory.GOVERNOR);
-        candidate.setVoteCount(candidate.getVoteCount() + 1);
-        voter.setHasVotedForGovernor(true);
+        if (voterExists) {
+            Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
+            if (voter.isHasVotedForGovernor()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+//            Voter savedVotes = votersRepository.save(voter);
 
-        candidatesRepository.save(candidate);
-        VoteCount voteCount = VoteCount.builder()
-                .candidate(candidate)
-                .voter(voter)
-                .voterCount(1L)
-                .build();
-        voteCountRepository.save(voteCount);
+            candidate.setVoteCategory(VoteCategory.GOVERNOR);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            voter.setHasVotedForGovernor(true);
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(voter)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetails = EmailDetails.builder()
+                    .recipient(voter.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetails);
+
+        } else if (candidateExists) {
+            Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(() -> new RuntimeException("Candidate not found"));
+            if (can.isHasVotedForGovernor()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+
+            candidate.setVoteCategory(VoteCategory.GOVERNOR);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            can.setHasVotedForGovernor(true);
+
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(null)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetail = EmailDetails.builder()
+                    .recipient(can.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetail);
+
+        }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
                 .message(ResponseUtils.VOTE_CASTED_MESSAGE)
@@ -142,46 +206,79 @@ public class VoteCountServiceImpl implements VoteCountService{
 
     @Override
     public Response castVoteForSENATE(CastVoteRequest castVoteRequest) {
-        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-        try {
-            if (voter.isHasVotedForSenateMember()){
-                return Response.builder()
-                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
-                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
-                        .build();
-            }
-        }catch (Exception e){
-            throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
-        }
-        Voter voteRepo = votersRepository.save(voter);
-
-        EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(voteRepo.getEmail())
-                .subject("Voting")
-                .messageBody("Thank you for exercising your franchise.\n" +
-                        "Voter's Name: " + voteRepo.getFirstName() + " " + voteRepo.getMiddleName() + " " + voteRepo.getLastName())
-                .build();
-        emailService.sendSimpleEmail(emailDetails);
-
-        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.SENATE,castVoteRequest.getParty());
-        if (optionalCandidate.isEmpty()){
+        boolean voterExists = votersRepository.existsByEmail(castVoteRequest.getEmail());
+        boolean candidateExists = candidatesRepository.existsByEmail(castVoteRequest.getEmail());
+        //finding voters and candidate in the database
+        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.SENATE, castVoteRequest.getParty());
+        if (optionalCandidate.isEmpty()) {
             Response.builder()
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_CODE)
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
                     .build();
         }
+        //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
-        candidate.setVoteCategory(VoteCategory.SENATE);
-        candidate.setVoteCount(candidate.getVoteCount() + 1);
-        voter.setHasVotedForSenateMember(true);
+        if (voterExists) {
+            Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
+            if (voter.isHasVotedForSenateMember()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+//            Voter savedVotes = votersRepository.save(voter);
 
-        candidatesRepository.save(candidate);
-        VoteCount voteCount = VoteCount.builder()
-                .candidate(candidate)
-                .voter(voter)
-                .voterCount(1L)
-                .build();
-        voteCountRepository.save(voteCount);
+            candidate.setVoteCategory(VoteCategory.SENATE);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            voter.setHasVotedForSenateMember(true);
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(voter)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetails = EmailDetails.builder()
+                    .recipient(voter.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetails);
+
+        } else if (candidateExists) {
+            Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(() -> new RuntimeException("Candidate not found"));
+            if (can.isHasVotedForSenateMember()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+
+            candidate.setVoteCategory(VoteCategory.GOVERNOR);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            can.setHasVotedForSenateMember(true);
+
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(null)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetail = EmailDetails.builder()
+                    .recipient(can.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetail);
+
+        }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
                 .message(ResponseUtils.VOTE_CASTED_MESSAGE)
@@ -190,174 +287,165 @@ public class VoteCountServiceImpl implements VoteCountService{
 
     @Override
     public Response castVoteForHOUSE_OF_ASSEMBLY(CastVoteRequest castVoteRequest) {
-        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-        try {
-            if (voter.isHasVotedForHouseOfAssemblyMember()){
-                return Response.builder()
-                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
-                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
-                        .build();
-            }
-        }catch (Exception e){
-            throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
-        }
-        Voter sazo = votersRepository.save(voter);
-
-        EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(sazo.getEmail())
-                .subject("Voting")
-                .messageBody("Thank you for exercising your franchise.\n" +
-                        "Voter's Name: " + sazo.getFirstName() + " " + sazo.getMiddleName() + " " + sazo.getLastName())
-                .build();
-        emailService.sendSimpleEmail(emailDetails);
-
-        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.HOUSE_OF_ASSEMBLY,castVoteRequest.getParty());
-        if (optionalCandidate.isEmpty()){
+        boolean voterExists = votersRepository.existsByEmail(castVoteRequest.getEmail());
+        boolean candidateExists = candidatesRepository.existsByEmail(castVoteRequest.getEmail());
+        //finding voters and candidate in the database
+        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.HOUSE_OF_ASSEMBLY, castVoteRequest.getParty());
+        if (optionalCandidate.isEmpty()) {
             Response.builder()
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_CODE)
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
                     .build();
         }
+        //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
-        candidate.setVoteCategory(VoteCategory.HOUSE_OF_ASSEMBLY);
-        candidate.setVoteCount(candidate.getVoteCount() + 1);
-        voter.setHasVotedForHouseOfAssemblyMember(true);
+        if (voterExists) {
+            Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
+            if (voter.isHasVotedForHouseOfAssemblyMember()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+//            Voter savedVotes = votersRepository.save(voter);
 
-        candidatesRepository.save(candidate);
-        VoteCount voteCount = VoteCount.builder()
-                .candidate(candidate)
-                .voter(voter)
-                .voterCount(1L)
-                .build();
-        voteCountRepository.save(voteCount);
+            candidate.setVoteCategory(VoteCategory.HOUSE_OF_ASSEMBLY);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            voter.setHasVotedForHouseOfAssemblyMember(true);
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(voter)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetails = EmailDetails.builder()
+                    .recipient(voter.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetails);
+
+        } else if (candidateExists) {
+            Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(() -> new RuntimeException("Candidate not found"));
+            if (can.isHasVotedForHouseOfAssemblyMember()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+
+            candidate.setVoteCategory(VoteCategory.GOVERNOR);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            can.setHasVotedForHouseOfAssemblyMember(true);
+
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(null)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetail = EmailDetails.builder()
+                    .recipient(can.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetail);
+
+        }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
                 .message(ResponseUtils.VOTE_CASTED_MESSAGE)
                 .build();
     }
-
     @Override
     public Response castVoteForHOUSE_OF_REPRESENTATIVE(CastVoteRequest castVoteRequest) {
-        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-        try {
-            if (voter.isHasVotedForHouseOfRepMember()){
-                return Response.builder()
-                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
-                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
-                        .build();
-            }
-        }catch (Exception e){
-            throw new AlreadyVotedException("You have already cast your vote for your preferred candidate");
-        }
-
-        Voter vot = votersRepository.save(voter);
-        EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(vot.getEmail())
-                .subject("Voting")
-                .messageBody("Thank you for exercising your franchise.\n" +
-                        "Voter's Name: " + vot.getFirstName() + " " + vot.getMiddleName() + " " + vot.getLastName())
-                .build();
-        emailService.sendSimpleEmail(emailDetails);
-        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.HOUSE_OF_REPRESENTATIVE,castVoteRequest.getParty());
-        if (optionalCandidate.isEmpty()){
+        boolean voterExists = votersRepository.existsByEmail(castVoteRequest.getEmail());
+        boolean candidateExists = candidatesRepository.existsByEmail(castVoteRequest.getEmail());
+        //finding voters and candidate in the database
+        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.HOUSE_OF_REPRESENTATIVE, castVoteRequest.getParty());
+        if (optionalCandidate.isEmpty()) {
             Response.builder()
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_CODE)
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
                     .build();
         }
+        //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
-        candidate.setVoteCategory(VoteCategory.HOUSE_OF_REPRESENTATIVE);
-        candidate.setVoteCount(candidate.getVoteCount() + 1);
-        voter.setHasVotedForHouseOfRepMember(true);
+        if (voterExists) {
+            Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
+            if (voter.isHasVotedForHouseOfRepMember()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+//            Voter savedVotes = votersRepository.save(voter);
 
-        candidatesRepository.save(candidate);
-        VoteCount voteCount = VoteCount.builder()
-                .candidate(candidate)
-                .voter(voter)
-                .voterCount(1L)
-                .build();
-        voteCountRepository.save(voteCount);
+            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            voter.setHasVotedForHouseOfRepMember(true);
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(voter)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetails = EmailDetails.builder()
+                    .recipient(voter.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetails);
+
+        }else if (candidateExists) {
+            Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(()-> new RuntimeException("Candidate not found"));
+            if (can.isHasVotedForHouseOfRepMember()) {
+                return Response.builder()
+                        .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
+                        .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
+                        .build();
+            }
+//            Candidate savedVot = candidatesRepository.save(can);
+
+            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
+            candidate.setVoteCount(candidate.getVoteCount() + 1);
+            can.setHasVotedForHouseOfRepMember(true);
+
+            candidatesRepository.save(candidate);
+            VoteCount voteCount = VoteCount.builder()
+                    .candidate(candidate)
+                    .voter(null)
+                    .voterCount(1L)
+                    .build();
+            //saving the vote count in the database
+            voteCountRepository.save(voteCount);
+
+            EmailDetails emailDetail = EmailDetails.builder()
+                    .recipient(can.getEmail())
+                    .subject("Voting")
+                    .messageBody("Thank you for exercising your franchise.\n" +
+                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
+                    .build();
+            emailService.sendSimpleEmail(emailDetail);
+
+        }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
                 .message(ResponseUtils.VOTE_CASTED_MESSAGE)
                 .build();
     }
-
-//    @Override
-//    public Response castVoteForGovernor(CastVoteRequest castVoteRequest) {
-//        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-//        if (voter.isHasVotedForGovernor()){
-//            throw new IllegalArgumentException("You have already cast your vote for your preferred candidate");
-//        }
-//        if (!(castVoteRequest.getVoteCategory()).equals(VoteCategory.GOVERNOR)){
-//            throw new RuntimeException("Invalid vote category");
-//        }
-//        Optional<Candidate> candidate = Optional.ofNullable(utils.checkCandidateValidity(castVoteRequest).orElseThrow(() -> new UsernameNotFoundException("Candidate not existed")));
-//        candidate.get().setVoteCount(candidate.get().getVoteCount()+ 1);
-//        voter.setHasVotedForPresident(true);
-//        candidatesRepository.save(candidate.get());
-//        return Response.builder()
-//                .code(ResponseUtils.VOTE_CASTED_CODE)
-//                .message(ResponseUtils.VOTE_CASTED_MESSAGE)
-//                .build();
-//    }
-//
-//    @Override
-//    public Response castVoteForSENATE(CastVoteRequest castVoteRequest) {
-//        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-//        if (voter.isHasVotedForSenateMember()){
-//            throw new IllegalArgumentException("You have already cast your vote for your preferred candidate");
-//        }
-//        if (!(castVoteRequest.getVoteCategory()).equals(VoteCategory.SENATE)){
-//            throw new RuntimeException("Invalid vote category");
-//        }
-//        Optional<Candidate> candidate = Optional.ofNullable(utils.checkCandidateValidity(castVoteRequest).orElseThrow(() -> new UsernameNotFoundException("Candidate not existed")));
-//        candidate.get().setVoteCount(candidate.get().getVoteCount()+ 1);
-//        voter.setHasVotedForSenateMember(true);
-//        candidatesRepository.save(candidate.get());
-//        return Response.builder()
-//                .code(ResponseUtils.VOTE_CASTED_CODE)
-//                .message(ResponseUtils.VOTE_CASTED_MESSAGE)
-//                .build();
-//    }
-//
-//    @Override
-//    public Response castVoteForHOUSE_OF_ASSEMBLY(CastVoteRequest castVoteRequest) {
-//        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-//        if (voter.isHasVotedForHouseOfAssemblyMember()){
-//            throw new IllegalArgumentException("You have already cast your vote for your preferred candidate");
-//        }
-//        if (!(castVoteRequest.getVoteCategory()).equals(VoteCategory.HOUSE_OF_ASSEMBLY)){
-//            throw new RuntimeException("Invalid vote category");
-//        }
-//        Optional<Candidate> candidate = Optional.ofNullable(utils.checkCandidateValidity(castVoteRequest).orElseThrow(() -> new UsernameNotFoundException("Candidate not existed")));
-//        candidate.get().setVoteCount(candidate.get().getVoteCount()+ 1);
-//        voter.setHasVotedForHouseOfAssemblyMember(true);
-//        candidatesRepository.save(candidate.get());
-//        return Response.builder()
-//                .code(ResponseUtils.VOTE_CASTED_CODE)
-//                .message(ResponseUtils.VOTE_CASTED_MESSAGE)
-//                .build();
-//    }
-//
-//    @Override
-//    public Response castVoteForHOUSE_OF_REPRESENTATIVE(CastVoteRequest castVoteRequest) {
-//        Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
-//        if (voter.isHasVotedForHouseOfRepMember()){
-//            throw new IllegalArgumentException("You have already cast your vote for your preferred candidate");
-//        }
-//        if (!(castVoteRequest.getVoteCategory()).equals(VoteCategory.HOUSE_OF_REPRESENTATIVE)){
-//            throw new RuntimeException("Invalid vote category");
-//        }
-//        Optional<Candidate> candidate = Optional.ofNullable(utils.checkCandidateValidity(castVoteRequest).orElseThrow(() -> new UsernameNotFoundException("Candidate not existed")));
-//        candidate.get().setVoteCount(candidate.get().getVoteCount()+ 1);
-//        voter.setHasVotedForHouseOfRepMember(true);
-//        candidatesRepository.save(candidate.get());
-//        return Response.builder()
-//                .code(ResponseUtils.VOTE_CASTED_CODE)
-//                .message(ResponseUtils.VOTE_CASTED_MESSAGE)
-//                .build();
-//    }
 
     @Override
     public ViewResultResponse viewPresidentialResultInPercentage() {
@@ -393,8 +481,8 @@ public class VoteCountServiceImpl implements VoteCountService{
     private ViewResultResponse getResultFor(List<Candidate> candidates) {
         long total = candidates.stream().mapToLong(Candidate::getVoteCount).count();
         Map<String, String> result = new HashMap<>();
-        for(Candidate candidate : candidates){
-            result.put(candidate.getParty().toString(), String.valueOf(candidate.getVoteCount()/total *100));
+        for (Candidate candidate : candidates) {
+            result.put(candidate.getParty().toString(), String.valueOf(candidate.getVoteCount() / total * 100));
         }
         return new ViewResultResponse(result);
     }

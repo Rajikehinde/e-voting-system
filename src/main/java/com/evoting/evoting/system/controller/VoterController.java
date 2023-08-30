@@ -3,6 +3,7 @@ package com.evoting.evoting.system.controller;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.dto.request.VotersRequest;
 import com.evoting.evoting.system.service.serviceForVoters.VotersService;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,14 +15,14 @@ public class VoterController {
     private VotersService votersService;
 
     @PostMapping("/voter/registration")
-    public Response registerVoters (@RequestBody VotersRequest votersRequest){
+    public Response registerVoters (@RequestBody VotersRequest votersRequest) throws UnirestException {
         return votersService.registerVoters(votersRequest);
     }
     @GetMapping("/fetchVoters")
     public List<Response> fetchAllVoters(){
         return votersService.fetchAllVoters();
     }
-    @PutMapping("/updateVoter")
+    @PutMapping("/update/voter")
     public Response updateVoters(@RequestBody VotersRequest votersRequest){
         return votersService.updateVoters(votersRequest);
     }

@@ -37,6 +37,8 @@ dependencies {
 	implementation ("io.jsonwebtoken:jjwt-impl:0.11.5")
 	implementation ("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	implementation ("org.springframework.boot:spring-boot-starter-tomcat")
+	implementation("com.mashape.unirest:unirest-java:1.4.9")
+	implementation("com.google.code.gson:gson:2.10.1")
 }
 
 tasks.withType<Test> {

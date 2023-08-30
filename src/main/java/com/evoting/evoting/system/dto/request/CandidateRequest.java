@@ -29,4 +29,9 @@ public class CandidateRequest {
     private String socialMediaHandles;
     private String Photo;
     private Party party;
+    private boolean hasVotedForGovernor;
+    private boolean hasVotedForPresident;
+    private boolean hasVotedForHouseOfRepMember;
+    private boolean hasVotedForSenateMember;
+    private boolean hasVotedForHouseOfAssemblyMember;
 }

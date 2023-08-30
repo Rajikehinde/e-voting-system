@@ -35,4 +35,5 @@ public class VotersRequest {
     private boolean hasVotedForHouseOfRepMember;
     private boolean hasVotedForSenateMember;
     private boolean hasVotedForHouseOfAssemblyMember;
+    private boolean hasVotedForPresident;
 }
