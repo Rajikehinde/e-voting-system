@@ -23,13 +23,13 @@ public class Election {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long electionId;
     private String electionName;
-    private LocalTime startTime;
-    private LocalTime endTime;
-    @OneToOne
-    @JoinColumn(name = "voter_id")
-    private Voter voter;
+    private LocalDate electionDate;
+    private LocalTime electionTimeStart;
+    private LocalTime electionTimeOut;
+//    @OneToOne
+//    @JoinColumn(name = "voter_id")
+//    private Voter voter;
 
-    // TODO: 8/17/2023 I have to activate the one to many here
     @OneToMany(mappedBy = "election", cascade = CascadeType.ALL)
     private List<Candidate> candidates;
 }

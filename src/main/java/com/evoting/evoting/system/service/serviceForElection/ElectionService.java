@@ -4,8 +4,8 @@ import com.evoting.evoting.system.dto.request.ElectionRequest;
 import com.evoting.evoting.system.dto.response.Response;
 
 public interface ElectionService {
-
-    Void startingTime (ElectionRequest electionRequest);
-    Void endingTime (ElectionRequest electionRequest);
+    boolean Time (ElectionRequest electionRequest);
+//    boolean startingTime (ElectionRequest electionRequest);
+//    boolean endingTime (ElectionRequest electionRequest);
 
 }

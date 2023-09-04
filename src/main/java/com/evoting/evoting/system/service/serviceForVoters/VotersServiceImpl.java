@@ -13,6 +13,7 @@ import com.evoting.evoting.system.otpMailing.OtpEntity;
 import com.evoting.evoting.system.otpMailing.OtpService;
 import com.evoting.evoting.system.repository.ElectionRepository;
 import com.evoting.evoting.system.repository.VotersRepository;
+import com.evoting.evoting.system.service.serviceForElection.ElectionServiceImpl;
 import com.evoting.evoting.system.utils.ResponseUtils;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ public class VotersServiceImpl implements VotersService{
     private VotersRepository votersRepository;
     @Autowired
     private ElectionRepository electionRepository;
+
 
     @Autowired
     private OtpService otpService;
@@ -64,7 +66,8 @@ public class VotersServiceImpl implements VotersService{
 
         //saving a voter in the database
         Voter savedVoters = votersRepository.save(voters);
-        otpService.sendOtpTrial(savedVoters.getPhoneNumber());
+        //implementation of Otp
+//        otpService.sendOtpTrial(savedVoters.getPhoneNumber());
 
         //appending email response to the account
         EmailDetails emailDetails = EmailDetails.builder()
@@ -117,22 +120,20 @@ public class VotersServiceImpl implements VotersService{
                     .build();
         }
         //finding the existed voter in database
-        votersRepository.findByUsername(votersRequest.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Voter voter = votersRepository.findByEmail(votersRequest.getEmail());
         //updating voter in database
-        Voter voter = Voter.builder()
-                .firstName(votersRequest.getFirstName())
-                .middleName(votersRequest.getMiddleName())
-                .lastName(votersRequest.getLastName())
-                .email(votersRequest.getEmail())
-                .username(votersRequest.getUsername())
-                .gender(Gender.valueOf(votersRequest.getGender()))
-                .dateOfBirth(votersRequest.getDateOfBirth())
-                .phoneNumber(votersRequest.getPhoneNumber())
-                .address(votersRequest.getAddress())
-                .localGovernment(votersRequest.getLocalGovernment())
-                .state(votersRequest.getState())
-                .build();
+        voter.setFirstName(votersRequest.getFirstName());
+        voter.setMiddleName(votersRequest.getMiddleName());
+        voter.setLastName(votersRequest.getLastName());
+        voter.setEmail(votersRequest.getEmail());
+        voter.setUsername(votersRequest.getUsername());
+        voter.setDateOfBirth(votersRequest.getDateOfBirth());
+        voter.setPhoneNumber(votersRequest.getPhoneNumber());
+        voter.setGender(Gender.valueOf(votersRequest.getGender()));
+        voter.setAddress(votersRequest.getAddress());
+        voter.setLocalGovernment(votersRequest.getLocalGovernment());
+        voter.setState(votersRequest.getState());
+
         //saving updated voter in database
         Voter savedVotes = votersRepository.save(voter);
 
@@ -185,7 +186,7 @@ public class VotersServiceImpl implements VotersService{
 
         if (voter != null && election != null){
             LocalDate date = LocalDate.now();
-            LocalDateTime time = LocalDateTime.now();
+            //LocalDateTime time = LocalDateTime.now();
 
             // Check voter's date of birth
             if (voter.getDateOfBirth().plusYears(18).isAfter(date)){

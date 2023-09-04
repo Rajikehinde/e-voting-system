@@ -21,4 +21,8 @@ public class ResponseUtils {
     public static final String CANDIDATE_NOT_EXISTED_MESSAGE = "Candidate not existed for this category and this party";
     public static final String VOTE_ALREADY_CASTED_CODE = "010";
     public static final String VOTE_ALREADY_CASTED_MESSAGE = "You have already cast your vote for your preferred candidate";
+    public static final String USER_ELIGIBILITY_MESSAGE = "You are not eligible to vote";
+    public static final String VOTE_ELIGIBILITY_CODE = "011";
+    public static final String ELECTION_MESSAGE = "Election isn't on";
+    public static final String ELECTION_CODE = "012";
 }

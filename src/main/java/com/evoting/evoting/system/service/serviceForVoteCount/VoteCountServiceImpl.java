@@ -1,6 +1,7 @@
 package com.evoting.evoting.system.service.serviceForVoteCount;
 
 import com.evoting.evoting.system.domain.Candidate;
+import com.evoting.evoting.system.domain.Election;
 import com.evoting.evoting.system.domain.VoteCount;
 import com.evoting.evoting.system.domain.Voter;
 import com.evoting.evoting.system.domain.enmPackage.Party;
@@ -12,9 +13,12 @@ import com.evoting.evoting.system.email.emailDto.EmailDetails;
 import com.evoting.evoting.system.email.emailService.EmailService;
 import com.evoting.evoting.system.exception.AlreadyVotedException;
 import com.evoting.evoting.system.repository.CandidatesRepository;
+import com.evoting.evoting.system.repository.ElectionRepository;
 import com.evoting.evoting.system.repository.VoteCountRepository;
 import com.evoting.evoting.system.repository.VotersRepository;
 import com.evoting.evoting.system.service.serviceForAuth.AuthServiceImpl;
+import com.evoting.evoting.system.service.serviceForElection.ElectionServiceImpl;
+import com.evoting.evoting.system.service.serviceForVoters.VotersServiceImpl;
 import com.evoting.evoting.system.utils.ResponseUtils;
 import com.evoting.evoting.system.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +43,13 @@ public class VoteCountServiceImpl implements VoteCountService {
     @Autowired
     private VoteCountRepository voteCountRepository;
     @Autowired
+    private VotersServiceImpl votersService;
+    @Autowired
     private CandidatesRepository candidatesRepository;
+    @Autowired
+    private ElectionServiceImpl electionService;
+    @Autowired
+    private ElectionRepository electionRepository;
     @Autowired
     private AuthServiceImpl authService;
     @Autowired
@@ -64,29 +77,38 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
                         .build();
             }
-//            Voter savedVotes = votersRepository.save(voter);
+            Election election = electionRepository.findByElectionName("PRESIDENCY");
+//            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())){
+//            LocalTime startTime = Time.valueOf("")
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())){
+                candidate.setVoteCategory(VoteCategory.PRESIDENCY);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                voter.setHasVotedForPresident(true);
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(voter)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
 
-            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            voter.setHasVotedForPresident(true);
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(voter)
-                    .voterCount(1L)
-                    .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
+                EmailDetails emailDetails = EmailDetails.builder()
+                        .recipient(voter.getEmail())
+                        .subject("Voting")
+                        .messageBody("Thank you for exercising your franchise.\n" +
+                                "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
+                        .build();
+                emailService.sendSimpleEmail(emailDetails);
+            }else{
+                return Response.builder()
+                        .code(ResponseUtils.ELECTION_CODE)
+                        .message(ResponseUtils.ELECTION_MESSAGE)
+                        .build();
+            }
+        }
 
-            EmailDetails emailDetails = EmailDetails.builder()
-                    .recipient(voter.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetails);
-
-        }else if (candidateExists) {
+        else if (candidateExists) {
             Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(()-> new RuntimeException("Candidate not found"));
             if (can.isHasVotedForPresident()) {
                 return Response.builder()
@@ -485,5 +507,9 @@ public class VoteCountServiceImpl implements VoteCountService {
             result.put(candidate.getParty().toString(), String.valueOf(candidate.getVoteCount() / total * 100));
         }
         return new ViewResultResponse(result);
+    }
+
+    private boolean confirmElectionTime(LocalTime startTime, LocalTime endTime){
+        return !LocalTime.now().isBefore(startTime) && !LocalTime.now().isAfter(endTime);
     }
 }

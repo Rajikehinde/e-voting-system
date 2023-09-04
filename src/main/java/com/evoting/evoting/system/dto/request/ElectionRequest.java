@@ -1,11 +1,17 @@
 package com.evoting.evoting.system.dto.request;
 
+import com.evoting.evoting.system.domain.enmPackage.VoteCategory;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -14,6 +20,7 @@ import java.time.LocalDateTime;
 public class ElectionRequest {
     private Long electionId;
     private String electionName;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate electionDate;
+    private LocalTime electionTimeStart;
+    private LocalTime electionTimeOut;
 }

@@ -25,7 +25,7 @@ public class CandidateController {
     Response updateCandidate(@RequestBody CandidateRequest candidateRequest){
         return candidateService.updateCandidate(candidateRequest);
     }
-    @DeleteMapping("/deleteCandidate{delete}")
+    @DeleteMapping("/delete/candidate/{delete}")
     Response delete(@PathVariable("delete") Long id){
         return candidateService.delete(id);
     }

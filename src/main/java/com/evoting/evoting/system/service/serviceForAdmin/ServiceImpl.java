@@ -71,7 +71,8 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
 
         //saving the created admin in the database
         Administration savedAdmin = administrationRepository.save(administration);
-        otpService.sendOtpTrial(savedAdmin.getPhoneNumber());
+        //implementation of OTP
+//        otpService.sendOtpTrial(savedAdmin.getPhoneNumber());
 
         //appending email to the created admin
         EmailDetails emailDetails = EmailDetails.builder()

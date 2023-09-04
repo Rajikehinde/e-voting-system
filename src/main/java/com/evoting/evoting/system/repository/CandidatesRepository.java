@@ -1,5 +1,6 @@
 package com.evoting.evoting.system.repository;
 
+import com.evoting.evoting.system.domain.Administration;
 import com.evoting.evoting.system.domain.Candidate;
 
 import com.evoting.evoting.system.domain.enmPackage.Party;

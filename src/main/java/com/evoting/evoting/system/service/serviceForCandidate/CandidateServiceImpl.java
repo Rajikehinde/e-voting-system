@@ -1,5 +1,6 @@
 package com.evoting.evoting.system.service.serviceForCandidate;
 
+import com.evoting.evoting.system.domain.Administration;
 import com.evoting.evoting.system.domain.Candidate;
 import com.evoting.evoting.system.domain.enmPackage.VoteCategory;
 import com.evoting.evoting.system.dto.request.CandidateRequest;
@@ -12,6 +13,7 @@ import com.evoting.evoting.system.repository.CandidatesRepository;
 import com.evoting.evoting.system.service.serviceForElection.ElectionService;
 import com.evoting.evoting.system.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -111,24 +113,23 @@ public class CandidateServiceImpl implements CandidateService{
                     .data(null)
                     .build();
         }
-        //updating candidate existed in the database
-        Candidate candidate = Candidate.builder()
-                .firstName(candidateRequest.getFirstName())
-                .lastName(candidateRequest.getLastName())
-                .middleName(candidateRequest.getMiddleName())
-                .email(candidateRequest.getEmail())
-                .dateOfBirth(candidateRequest.getDateOfBirth())
-                .phoneNumber(candidateRequest.getPhoneNumber())
-                .biography(candidateRequest.getBiography())
-                .socialMediaHandles(candidateRequest.getSocialMediaHandles())
-                .campaignWebsite(candidateRequest.getCampaignWebsite())
-                .slogan(candidateRequest.getSlogan())
-                .voteCategory(candidateRequest.getVoteCategory())
-                .Photo(candidateRequest.getPhoto())
-                .build();
+        //finding the existed admin in the database and updating it
+        Candidate candidate = candidatesRepository.findFirstByVoteCategoryAndParty(candidateRequest.getVoteCategory(), candidateRequest.getParty())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        candidate.setLastName(candidateRequest.getLastName());
+        candidate.setMiddleName(candidateRequest.getMiddleName());
+        candidate.setFirstName(candidateRequest.getFirstName());
+        candidate.setDateOfBirth(candidateRequest.getDateOfBirth());
+        candidate.setEmail(candidateRequest.getEmail());
+        candidate.setPhoneNumber(candidateRequest.getPhoneNumber());
+        candidate.setCampaignWebsite(candidateRequest.getCampaignWebsite());
+        candidate.setParty(candidateRequest.getParty());
+        candidate.setVoteCategory(candidateRequest.getVoteCategory());
+        candidate.setSocialMediaHandles(candidateRequest.getSocialMediaHandles());
+        candidate.setPhoto(candidateRequest.getPhoto());
 
-        //saving the candidate in the database
-                Candidate savedCandidate = candidatesRepository.save(candidate);
+        //saving the update in the database
+        Candidate savedCandidate = candidatesRepository.save(candidate);
 
                 //appending email to the updated candidate
         EmailDetails emailDetails = EmailDetails.builder()

@@ -26,7 +26,7 @@ public class VoterController {
     public Response updateVoters(@RequestBody VotersRequest votersRequest){
         return votersService.updateVoters(votersRequest);
     }
-    @DeleteMapping("/delete/voter{delete}")
+    @DeleteMapping("/delete/voter/{delete}")
     public Response delete(@PathVariable("delete")Long id){
         return votersService.delete(id);
     }
