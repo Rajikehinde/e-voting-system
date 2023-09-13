@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-//@Slf4j
 public class AuthServiceImpl implements AuthService{
 
     private final AdministrationRepository administrationRepository;
@@ -44,25 +43,22 @@ public class AuthServiceImpl implements AuthService{
         AuthResponse authResponse;
         if (isAdminExists) {
         Administration admin = administrationRepository.findByUsername(loginDto.getUsername()).orElseThrow(() -> new UsernameNotFoundException("username not found"));
-//        log.info("found the customer " + admin.getEmail());
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(admin.getUsername(), loginDto.getPassword()));
-//        log.info("Authenticate the customer " + admin);
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
             authResponse = new AuthResponse();
             authResponse.setToken(jwtTokenProvider.generateToken(authentication));
         } else if (isVoterExists) {
         Voter voter = votersRepository.findByUsername(loginDto.getUsername()).orElseThrow(() -> new UsernameNotFoundException("userName not found"));
-//        log.info("found the customer " + voter.getEmail());
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(voter.getUsername(), loginDto.getPassword()));
-//        log.info("Authenticate the customer " + voter);
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
             authResponse = new AuthResponse();
             authResponse.setToken(jwtTokenProvider.generateToken(authentication));
         }else{
             Candidate candidate = candidatesRepository.findByUsername(loginDto.getUsername()).orElseThrow(()-> new UsernameNotFoundException("userName not found"));
-//        log.info("found the customer " + candidate.getEmail());
         authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(candidate.getUsername(), loginDto.getPassword()));
-//        log.info("Authenticate the customer " + candidate);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         authResponse = new AuthResponse();
         authResponse.setToken(jwtTokenProvider.generateToken(authentication));

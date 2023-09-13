@@ -87,7 +87,7 @@ public class VotersServiceImpl implements VotersService {
         Voter voters = Voter.builder()
                 .firstName(votersRequest.getFirstName())
                 .middleName(votersRequest.getMiddleName())
-                .lastName(lastName)
+                .lastName(votersRequest.getLastName())
                 .email(votersRequest.getEmail())
                 .cardNo(cardNumber)
                 .username(votersRequest.getUsername())
@@ -101,7 +101,7 @@ public class VotersServiceImpl implements VotersService {
                 .build();
 
         //appending a role of security to the admin
-        Role role = roleRepository.findByRoleName("ROLE_CANDIDATE").get();
+        Role role = roleRepository.findByRoleName("ROLE_VOTER").get();
         log.info("give me the role" + role);
         voters.setRole(Collections.singleton(role));
         // Save the voter to the database

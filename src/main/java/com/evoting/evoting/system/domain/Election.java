@@ -26,9 +26,9 @@ public class Election {
     private LocalDate electionDate;
     private LocalTime electionTimeStart;
     private LocalTime electionTimeOut;
-//    @OneToOne
-//    @JoinColumn(name = "voter_id")
-//    private Voter voter;
+    @OneToOne
+    @JoinColumn(name = "voter_id")
+    private Voter voter;
 
     @OneToMany(mappedBy = "election", cascade = CascadeType.ALL)
     private List<Candidate> candidates;

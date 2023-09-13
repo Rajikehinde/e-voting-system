@@ -15,6 +15,8 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
+@Table(name = "Voter")
+
 public class Voter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +32,6 @@ public class Voter {
     private String cardNo;
     private String state;
     private String localGovernment;
-//    private String registrationNo;
     private String address;
     private String username;
     private String password;
@@ -41,10 +42,10 @@ public class Voter {
     private boolean hasVotedForSenateMember;
     private boolean hasVotedForHouseOfAssemblyMember;
 
-    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinTable(name = "Voter_role", joinColumns = @JoinColumn(name = "Voter_id",referencedColumnName = "voterId"),
-            inverseJoinColumns = @JoinColumn(name = "election_id",referencedColumnName = "electionId"))
-    private List<Election> election;
+//    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+//    @JoinTable(name = "Voter_role", joinColumns = @JoinColumn(name = "Voter_id",referencedColumnName = "voterId"),
+//            inverseJoinColumns = @JoinColumn(name = "election_id",referencedColumnName = "electionId"))
+//    private List<Election> election;
 
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL)
     private List<VoteCount> voteCounts;
