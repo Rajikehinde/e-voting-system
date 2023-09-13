@@ -25,4 +25,6 @@ public class ResponseUtils {
     public static final String VOTE_ELIGIBILITY_CODE = "011";
     public static final String ELECTION_MESSAGE = "Election isn't on";
     public static final String ELECTION_CODE = "012";
+    public static final String AGE_LIMIT_EXCEEDED_CODE = "013";
+    public static final String AGE_LIMIT_EXCEEDED_MESSAGE = "Not eligable to vote";
 }

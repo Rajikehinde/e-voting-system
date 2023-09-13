@@ -18,7 +18,7 @@ public class CandidateController {
         return candidateService.registerCandidate(candidateRequest);
     }
     @GetMapping("/fetchAllCandidates")
-    List<Response> fetchAllCandidates(){
+    List<Response> fetchAllCandidates(@RequestParam(value = "pageNo")int pageNo, @RequestParam(value = "limit")int limit){
         return candidateService.fetchAllCandidates();
     }
     @PutMapping("/candidate/update")

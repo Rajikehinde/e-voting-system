@@ -11,4 +11,5 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 public class Data {
     private String name;
+    private String cardNo;
 }

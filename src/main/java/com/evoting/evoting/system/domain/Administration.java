@@ -35,4 +35,7 @@ public class Administration {
     @JoinTable(name = "Administration_role", joinColumns = @JoinColumn(name = "Administration_id",referencedColumnName = "adminId"),
             inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id"))
     private Set<Role> role;
+
+//    public Administration(String raji, String kenny, String hus, String kenn, String s, int i, String s1, String s2) {
+//    }
 }

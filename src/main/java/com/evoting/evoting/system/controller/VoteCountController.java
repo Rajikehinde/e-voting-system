@@ -23,7 +23,7 @@ public class VoteCountController {
 
     @PostMapping("presidency/vote")
     public ResponseEntity<?> castVoteForPresidency(@RequestBody CastVoteRequest castVoteRequest){
-        Response castVoteResponse = voteCountService.castVoteForPresidency(castVoteRequest);
+        Response castVoteResponse = voteCountService. castVoteForPresidency(castVoteRequest);
         return ResponseEntity.status(HttpStatus.OK).body(castVoteResponse);
     }
     @PostMapping("governor/vote")

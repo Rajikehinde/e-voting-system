@@ -19,16 +19,17 @@ public class VotersRequest {
     private String lastName;
     private String middleName;
     private String firstName;
-    private LocalDate dateOfBirth;
+    private Date dateOfBirth;
     private String email;
     private String phoneNumber;
+    private String username;
+    private String password;
     @Enumerated(EnumType.STRING)
     private String gender;
     private String state;
     private String localGovernment;
 //    private String registrationNo;
     private String address;
-    private String username;
 //    private String password;
 //    private String languagePreference;
     private boolean hasVotedForGovernor;

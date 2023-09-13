@@ -11,7 +11,7 @@ import com.evoting.evoting.system.dto.request.ViewResultResponse;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.email.emailDto.EmailDetails;
 import com.evoting.evoting.system.email.emailService.EmailService;
-import com.evoting.evoting.system.exception.AlreadyVotedException;
+//import com.evoting.evoting.system.exception.AlreadyVotedException;
 import com.evoting.evoting.system.repository.CandidatesRepository;
 import com.evoting.evoting.system.repository.ElectionRepository;
 import com.evoting.evoting.system.repository.VoteCountRepository;
@@ -504,7 +504,7 @@ public class VoteCountServiceImpl implements VoteCountService {
         long total = candidates.stream().mapToLong(Candidate::getVoteCount).count();
         Map<String, String> result = new HashMap<>();
         for (Candidate candidate : candidates) {
-            result.put(candidate.getParty().toString(), String.valueOf(candidate.getVoteCount() / total * 100));
+            result.put(candidate.getParty().toString(), String.valueOf(candidate.getVoteCount() *100 /total));
         }
         return new ViewResultResponse(result);
     }

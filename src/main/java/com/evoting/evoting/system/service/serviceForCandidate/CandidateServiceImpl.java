@@ -2,28 +2,38 @@ package com.evoting.evoting.system.service.serviceForCandidate;
 
 import com.evoting.evoting.system.domain.Administration;
 import com.evoting.evoting.system.domain.Candidate;
+import com.evoting.evoting.system.domain.Role;
 import com.evoting.evoting.system.domain.enmPackage.VoteCategory;
 import com.evoting.evoting.system.dto.request.CandidateRequest;
 import com.evoting.evoting.system.dto.Data;
 import com.evoting.evoting.system.dto.response.Response;
 import com.evoting.evoting.system.email.emailDto.EmailDetails;
 import com.evoting.evoting.system.email.emailService.EmailService;
-import com.evoting.evoting.system.exception.AlreadyVotedException;
+//import com.evoting.evoting.system.exception.AlreadyVotedException;
 import com.evoting.evoting.system.repository.CandidatesRepository;
+import com.evoting.evoting.system.repository.RoleRepository;
 import com.evoting.evoting.system.service.serviceForElection.ElectionService;
 import com.evoting.evoting.system.utils.ResponseUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class CandidateServiceImpl implements CandidateService{
     @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
     EmailService emailService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     private final CandidatesRepository candidatesRepository;
 
     public CandidateServiceImpl(CandidatesRepository candidatesRepository) {
@@ -51,6 +61,8 @@ public class CandidateServiceImpl implements CandidateService{
                     .email(candidateRequest.getEmail())
                     .dateOfBirth(candidateRequest.getDateOfBirth())
                     .phoneNumber(candidateRequest.getPhoneNumber())
+                    .username(candidateRequest.getUsername())
+                    .password(passwordEncoder.encode(candidateRequest.getPassword()))
                     .biography(candidateRequest.getBiography())
                     .socialMediaHandles(candidateRequest.getSocialMediaHandles())
                     .campaignWebsite(candidateRequest.getCampaignWebsite())
@@ -59,6 +71,11 @@ public class CandidateServiceImpl implements CandidateService{
                     .party(candidateRequest.getParty())
                     .Photo(candidateRequest.getPhoto())
                     .build();
+
+            //appending a role of security to the admin
+            Role role = roleRepository.findByRoleName("ROLE_CANDIDATE").get();
+            log.info("give me the role" + role);
+            candidate.setRole(Collections.singleton(role));
             //saving the candidate in the database
             Candidate savedCandidate = candidatesRepository.save(candidate);
 
@@ -121,6 +138,8 @@ public class CandidateServiceImpl implements CandidateService{
         candidate.setFirstName(candidateRequest.getFirstName());
         candidate.setDateOfBirth(candidateRequest.getDateOfBirth());
         candidate.setEmail(candidateRequest.getEmail());
+        candidate.setUsername(candidateRequest.getUsername());
+        candidate.setPassword(passwordEncoder.encode(candidateRequest.getPassword()));
         candidate.setPhoneNumber(candidateRequest.getPhoneNumber());
         candidate.setCampaignWebsite(candidateRequest.getCampaignWebsite());
         candidate.setParty(candidateRequest.getParty());

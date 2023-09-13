@@ -24,6 +24,8 @@ public class CandidateRequest {
     private String phoneNumber;
     private VoteCategory voteCategory;
     private String slogan;
+    private String username;
+    private String password;
     private VoteCount voteCount;
     private String campaignWebsite;
     private String socialMediaHandles;

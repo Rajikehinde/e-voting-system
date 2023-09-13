@@ -7,6 +7,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -23,15 +24,16 @@ public class Voter {
     private String firstName;
     @Enumerated(EnumType.STRING)
     private Gender gender;
-    private LocalDate dateOfBirth;
+    private Date dateOfBirth;
     private String email;
     private String phoneNumber;
+    private String cardNo;
     private String state;
     private String localGovernment;
 //    private String registrationNo;
     private String address;
     private String username;
-//    private String password;
+    private String password;
     private Boolean deleteStatus;
     private boolean hasVotedForGovernor;
     private boolean hasVotedForPresident;
@@ -47,5 +49,8 @@ public class Voter {
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL)
     private List<VoteCount> voteCounts;
 
-
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @JoinTable(name = "Voter_role", joinColumns = @JoinColumn(name = "Voter_id",referencedColumnName = "voterId"),
+            inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id"))
+    private Set<Role> role;
 }

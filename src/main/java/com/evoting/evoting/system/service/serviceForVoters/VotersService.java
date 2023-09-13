@@ -12,5 +12,4 @@ public interface VotersService {
     List<Response> fetchAllVoters();
     Response updateVoters(VotersRequest votersRequest);
     Response delete(Long id);
-    boolean canVote(Long voterId, Long electionId);
 }

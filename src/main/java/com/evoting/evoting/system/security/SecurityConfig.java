@@ -63,7 +63,6 @@ public class SecurityConfig {
 
 
                                         .requestMatchers(HttpMethod.POST,"/api/candidate/registration").permitAll()
-//                                        .requestMatchers(HttpMethod.POST,"/api/admin/login").permitAll()
                                         .requestMatchers(HttpMethod.GET,"/api/fetchAllCandidates").hasAuthority("ROLE_ADMIN")
                                         .requestMatchers(HttpMethod.PUT,"/api/candidate/update").hasAuthority("ROLE_ADMIN")
                                         .requestMatchers(HttpMethod.DELETE,"/api/deleteCandidate").hasAuthority("ROLE_ADMIN")

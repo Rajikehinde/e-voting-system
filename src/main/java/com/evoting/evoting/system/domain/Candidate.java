@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,6 +26,8 @@ public class Candidate {
     private LocalDate dateOfBirth;
     private String biography;
     private String email;
+    private String username;
+    private String password;
     private String phoneNumber;
     private long voteCount;
     private String socialMediaHandles;
@@ -55,4 +58,9 @@ public class Candidate {
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
     private List<VoteCount> voteCounts;
+
+    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @JoinTable(name = "Candidate_role", joinColumns = @JoinColumn(name = "Candidate_id",referencedColumnName = "candidateId"),
+            inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id"))
+    private Set<Role> role;
 }
