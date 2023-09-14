@@ -46,12 +46,6 @@ public class Candidate {
     private boolean hasVotedForSenateMember;
     private boolean hasVotedForHouseOfAssemblyMember;
 
-
-    // TODO: 8/17/2023 This needs to change to many to one
-//    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-//    @JoinTable(name = "Candidate_role", joinColumns = @JoinColumn(name = "Candidate_id",referencedColumnName = "candidateId"),
-//            inverseJoinColumns = @JoinColumn(name = "election_id",referencedColumnName = "electionId"))
-//    private List<Election> election;
     @ManyToOne
     @JoinColumn(name = "electionId")
     private Election election;

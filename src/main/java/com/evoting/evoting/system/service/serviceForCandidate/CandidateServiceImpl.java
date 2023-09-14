@@ -52,7 +52,8 @@ public class CandidateServiceImpl implements CandidateService{
                     .build();
         }
         //checking if candidate with a specific category of a party exists
-        if (!candidatesRepository.existsByVoteCategoryAndParty(candidateRequest.getVoteCategory(), candidateRequest.getParty())) {
+        Boolean isExistsByCategoryAndParty = candidatesRepository.existsByVoteCategoryAndParty(candidateRequest.getVoteCategory(), candidateRequest.getParty());
+        if (!isExistsByCategoryAndParty) {
             //creating a candidate profile if not exist
             Candidate candidate = Candidate.builder()
                     .firstName(candidateRequest.getFirstName())
@@ -74,15 +75,17 @@ public class CandidateServiceImpl implements CandidateService{
 
             //appending a role of security to the admin
             Role role = roleRepository.findByRoleName("ROLE_CANDIDATE").get();
-            log.info("give me the role" + role);
+//            log.info("give me the role" + role);
             candidate.setRole(Collections.singleton(role));
             //saving the candidate in the database
             Candidate savedCandidate = candidatesRepository.save(candidate);
+            //implementation of OTP
+//            otpService.sendOtpTrial(savedCandidate.getPhoneNumber());
 
             //appending email to the candidate
             EmailDetails emailDetails = EmailDetails.builder()
-                    .recipient(savedCandidate.getEmail())
                     .subject("Candidate")
+                    .recipient(savedCandidate.getEmail())
                     .messageBody("Candidate profile created.\n" +
                             "Candidate Name: " + savedCandidate.getFirstName() + " " + savedCandidate.getMiddleName() + " " + savedCandidate.getLastName())
                     .build();
@@ -130,7 +133,7 @@ public class CandidateServiceImpl implements CandidateService{
                     .data(null)
                     .build();
         }
-        //finding the existed admin in the database and updating it
+        //finding the existed candidate in the database and updating it
         Candidate candidate = candidatesRepository.findFirstByVoteCategoryAndParty(candidateRequest.getVoteCategory(), candidateRequest.getParty())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         candidate.setLastName(candidateRequest.getLastName());

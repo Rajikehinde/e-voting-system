@@ -29,7 +29,6 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
     EmailService emailService;
     @Autowired
     private OtpService otpService;
-    @Autowired
     private final AdministrationRepository administrationRepository;
     @Autowired
     private RoleRepository roleRepository;
@@ -66,7 +65,7 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
 
         //appending a role of security to the admin
         Role role = roleRepository.findByRoleName("ROLE_ADMIN").get();
-        log.info("give me the role" + role);
+//        log.info("give me the role" + role);
         administration.setRole(Collections.singleton(role));
 
         //saving the created admin in the database
@@ -76,8 +75,8 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
 
         //appending email to the created admin
         EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(savedAdmin.getEmail())
                 .subject("Admin")
+                .recipient(savedAdmin.getEmail())
                 .messageBody("This user successfully registered as the admin.\n" +
                         "Admin Name: " + savedAdmin.getFirstName() + " " + savedAdmin.getMiddleName() + " " + savedAdmin.getLastName())
                 .build();
@@ -139,8 +138,8 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
 
         //appending email to the updated admin
         EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(savedAdmin.getEmail())
                 .subject("Admin")
+                .recipient(savedAdmin.getEmail())
                 .messageBody("This profile successfully updated.\n" +
                         "Admin Name: " + savedAdmin.getFirstName() + " " + savedAdmin.getMiddleName() + " " + savedAdmin.getLastName())
                 .build();

@@ -24,7 +24,9 @@ public class Election {
     private Long electionId;
     private String electionName;
     private LocalDate electionDate;
+    @Column(columnDefinition = "TIME")
     private LocalTime electionTimeStart;
+    @Column(columnDefinition = "TIME")
     private LocalTime electionTimeOut;
     @OneToOne
     @JoinColumn(name = "voter_id")

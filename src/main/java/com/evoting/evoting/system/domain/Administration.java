@@ -23,10 +23,11 @@ public class Administration {
     private String lastName;
     private String middleName;
     private String firstName;
-    private String username; //TODO: to be refactored by using email rather than this username;
+    private String username;
     private String password;
     private String email;
     private String phoneNumber;
+    @Column(columnDefinition = "BIT")
     private Boolean deleteStatus;
     private LocalDate dateOfBirth;
     private boolean status;
@@ -36,6 +37,4 @@ public class Administration {
             inverseJoinColumns = @JoinColumn(name = "role_id",referencedColumnName = "id"))
     private Set<Role> role;
 
-//    public Administration(String raji, String kenny, String hus, String kenn, String s, int i, String s1, String s2) {
-//    }
 }

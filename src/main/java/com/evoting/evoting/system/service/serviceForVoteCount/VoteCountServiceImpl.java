@@ -57,9 +57,10 @@ public class VoteCountServiceImpl implements VoteCountService {
 
     @Override
     public Response castVoteForPresidency(CastVoteRequest castVoteRequest) {
+        //checking if voters and candidate exists in database
         boolean voterExists = votersRepository.existsByEmail(castVoteRequest.getEmail());
         boolean candidateExists = candidatesRepository.existsByEmail(castVoteRequest.getEmail());
-        //finding voters and candidate in the database
+        //finding candidate in the database and if not found throw a response not found so that it can be available to be voted for
         Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.PRESIDENCY, castVoteRequest.getParty());
         if (optionalCandidate.isEmpty()) {
             Response.builder()
@@ -69,17 +70,22 @@ public class VoteCountServiceImpl implements VoteCountService {
         }
         //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
+
+        //if voter exists, then find it, and then all other conditions comes after.
         if (voterExists) {
             Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
+            //check if found voter has already voted, if yes, throw already voted
             if (voter.isHasVotedForPresident()) {
                 return Response.builder()
                         .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
                         .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
                         .build();
             }
+            //if voter hasn't voted, then find the category the available candidate is contesting for
             Election election = electionRepository.findByElectionName("PRESIDENCY");
-//            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())){
-//            LocalTime startTime = Time.valueOf("")
+
+            //after getting the category of the candidate, it is time to vote but before voting the time of the election has to be checked if it is
+            //within time for the voter to vote for the candidate, if it is still on the voting can still be done
             if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())){
                 candidate.setVoteCategory(VoteCategory.PRESIDENCY);
                 candidate.setVoteCount(candidate.getVoteCount() + 1);
@@ -93,6 +99,7 @@ public class VoteCountServiceImpl implements VoteCountService {
                 //saving the vote count in the database
                 voteCountRepository.save(voteCount);
 
+                //sending email to the voter for voting
                 EmailDetails emailDetails = EmailDetails.builder()
                         .recipient(voter.getEmail())
                         .subject("Voting")
@@ -100,6 +107,7 @@ public class VoteCountServiceImpl implements VoteCountService {
                                 "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
                         .build();
                 emailService.sendSimpleEmail(emailDetails);
+                //if the time isn't withing the election timestamped then throw a response voting can't be done anymore
             }else{
                 return Response.builder()
                         .code(ResponseUtils.ELECTION_CODE)
@@ -108,15 +116,16 @@ public class VoteCountServiceImpl implements VoteCountService {
             }
         }
 
+        //checking if candidate exists also in other to be able to vote too for other candidates as a voter, then find it, and then all other conditions comes after.
         else if (candidateExists) {
             Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(()-> new RuntimeException("Candidate not found"));
+            //check if found voter has already voted, if yes, throw already voted
             if (can.isHasVotedForPresident()) {
                 return Response.builder()
                         .code(ResponseUtils.VOTE_ALREADY_CASTED_CODE)
                         .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
                         .build();
             }
-//            Candidate savedVot = candidatesRepository.save(can);
 
             candidate.setVoteCategory(VoteCategory.PRESIDENCY);
             candidate.setVoteCount(candidate.getVoteCount() + 1);

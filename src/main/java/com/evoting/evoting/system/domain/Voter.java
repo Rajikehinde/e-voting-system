@@ -26,6 +26,7 @@ public class Voter {
     private String firstName;
     @Enumerated(EnumType.STRING)
     private Gender gender;
+    @Column(columnDefinition = "DATE")
     private Date dateOfBirth;
     private String email;
     private String phoneNumber;
@@ -35,17 +36,13 @@ public class Voter {
     private String address;
     private String username;
     private String password;
+    @Column(columnDefinition = "BIT")
     private Boolean deleteStatus;
     private boolean hasVotedForGovernor;
     private boolean hasVotedForPresident;
     private boolean hasVotedForHouseOfRepMember;
     private boolean hasVotedForSenateMember;
     private boolean hasVotedForHouseOfAssemblyMember;
-
-//    @ManyToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-//    @JoinTable(name = "Voter_role", joinColumns = @JoinColumn(name = "Voter_id",referencedColumnName = "voterId"),
-//            inverseJoinColumns = @JoinColumn(name = "election_id",referencedColumnName = "electionId"))
-//    private List<Election> election;
 
     @OneToMany(mappedBy = "voter", cascade = CascadeType.ALL)
     private List<VoteCount> voteCounts;

@@ -30,26 +30,4 @@ public class ElectionServiceImpl implements ElectionService {
         return true;
 
     }
-
-//    @Override
-//    public boolean startingTime(ElectionRequest electionRequest) {
-//        Election election = electionRepository.findById(electionRequest.getElectionId()).orElseThrow(() -> new UsernameNotFoundException("Not found"));
-//        LocalTime currentTime = LocalTime.now();
-//
-//        if (currentTime.isBefore(election.getElectionTimeStart())){
-//            return false;
-//        }
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean endingTime(ElectionRequest electionRequest) {
-//        Election election = electionRepository.findById(electionRequest.getElectionId()).orElseThrow(() -> new UsernameNotFoundException("Not found"));
-//        LocalTime currentTime = Time.valueOf("17:00:00").toLocalTime();
-//
-////        if (election.getStartTime().isAfter(currentTime)){
-////            System.out.println("Election has ended");
-////        }
-//        return true;
-//    }
 }

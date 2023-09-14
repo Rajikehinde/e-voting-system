@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CastVoteRequest {
     private Party party;
-//    private VoteCategory voteCategory;
     private String email;
-//    private String password;
 }

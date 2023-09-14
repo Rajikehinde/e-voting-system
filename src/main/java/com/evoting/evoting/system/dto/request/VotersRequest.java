@@ -28,10 +28,7 @@ public class VotersRequest {
     private String gender;
     private String state;
     private String localGovernment;
-//    private String registrationNo;
     private String address;
-//    private String password;
-//    private String languagePreference;
     private boolean hasVotedForGovernor;
     private boolean hasVotedForHouseOfRepMember;
     private boolean hasVotedForSenateMember;

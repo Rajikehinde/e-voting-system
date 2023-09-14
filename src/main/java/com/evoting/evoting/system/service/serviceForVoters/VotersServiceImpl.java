@@ -51,7 +51,7 @@ public class VotersServiceImpl implements VotersService {
 
     @Override
     public Response registerVoters(VotersRequest votersRequest) throws UnirestException {
-        // Checking if voter exists in the database through email
+        // Checking if voter exists in the database  through email
         Boolean isExist = votersRepository.existsByEmail(votersRequest.getEmail());
         if (isExist) {
             return Response.builder()
@@ -71,7 +71,7 @@ public class VotersServiceImpl implements VotersService {
         Date dateOfBirth =votersRequest.getDateOfBirth();
         int age = calculateAge(dateOfBirth);
 
-        // Check if the voter is 18 years or older
+        // Check if the voter is 18 years or less
         if (age < 18) {
             return Response.builder()
                     .code(ResponseUtils.AGE_LIMIT_EXCEEDED_CODE)
@@ -79,9 +79,6 @@ public class VotersServiceImpl implements VotersService {
                     .data(null)
                     .build();
         }
-
-        // Extract the initials from the last name
-
 
         // Create a voter in the database with the generated card number
         Voter voters = Voter.builder()
@@ -102,7 +99,7 @@ public class VotersServiceImpl implements VotersService {
 
         //appending a role of security to the admin
         Role role = roleRepository.findByRoleName("ROLE_VOTER").get();
-        log.info("give me the role" + role);
+//        log.info("give me the role" + role);
         voters.setRole(Collections.singleton(role));
         // Save the voter to the database
         Voter savedVoters=votersRepository.save(voters);
@@ -116,15 +113,15 @@ public class VotersServiceImpl implements VotersService {
                 + "Your account name is: " + voters.getFirstName() + " " + voters.getLastName() + "\n"
                 + "Your username is: " + voters.getUsername() + "\n"
                 + "Please click the following link to verify your account:\n"
-                + "http://localhost:8080/api/verifyAccount/"+generateVerificationToken() + "\n\n"
+//                + "http://localhost:8080/api/verifyAccount/"+generateVerificationToken() + "\n\n"
                 + "Thank you for joining us!\n\n"
                 + "Best regards,\n"
-                + "Sugar_Plum_Bazzar";
+                + "electoral commission";
 
         //appending email response to the account
         EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(savedVoters.getEmail())
                 .subject("Voter")
+                .recipient(savedVoters.getEmail())
                 .messageBody(emailMessage)
                 .cardNo(savedVoters.getCardNo())
                 .build();
@@ -196,8 +193,8 @@ public class VotersServiceImpl implements VotersService {
 
         //appending email response to the account
         EmailDetails emailDetails = EmailDetails.builder()
-                .recipient(savedVotes.getEmail())
                 .subject("Voter")
+                .recipient(savedVotes.getEmail())
                 .messageBody("Voter profile updated \n" +
                         "Voter Name: " + savedVotes.getFirstName() + " " + savedVotes.getMiddleName() + " " + savedVotes.getLastName())
                 .build();
@@ -242,20 +239,20 @@ public class VotersServiceImpl implements VotersService {
 
 
     //Link token verification
-    public static String generateVerificationToken() {
-        int tokenLength = 20; // Adjust the token length as needed
-        byte[] randomBytes = new byte[tokenLength];
-        SecureRandom secureRandom = new SecureRandom();
-        secureRandom.nextBytes(randomBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
-    }
+//    public static String generateVerificationToken() {
+//        int tokenLength = 20; // Adjust the token length as needed
+//        byte[] randomBytes = new byte[tokenLength];
+//        SecureRandom secureRandom = new SecureRandom();
+//        secureRandom.nextBytes(randomBytes);
+//        return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+//    }
 
-        // Method to extract initials from the last name
+        // Method to extract initial first three letters from the last name
         public static String extractInitials(String lastName) {
             return lastName.substring(0, Math.min(lastName.length(), 3)).toUpperCase();
         }
 
-        // Method to generate a random card number using initials
+        // Method to generate a random card 5 numbers using initials
         public static String generateCardNumber(String initials) {
             Random random = new Random();
             StringBuilder cardNumberBuilder = new StringBuilder(initials);
