@@ -41,7 +41,7 @@
 </td>
 <td>
 <div class="infoBox" id="duration">
-<div class="counter">1.049s</div>
+<div class="counter">0.770s</div>
 <p>duration</p>
 </div>
 </td>
@@ -79,7 +79,7 @@
 </thead>
 <tr>
 <td class="success">contextLoads()</td>
-<td class="success">1.049s</td>
+<td class="success">0.770s</td>
 <td class="success">passed</td>
 </tr>
 </table>
@@ -88,8 +88,8 @@
 <h2>Standard output</h2>
 <span class="code">
 <pre>Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
-15:20:06.064 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.evoting.evoting.system.EVotingSystemApplicationTests]: EVotingSystemApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-15:20:06.250 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.evoting.evoting.system.EVotingSystemApplication for test class com.evoting.evoting.system.EVotingSystemApplicationTests
+17:16:10.515 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.evoting.evoting.system.EVotingSystemApplicationTests]: EVotingSystemApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+17:16:10.638 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.evoting.evoting.system.EVotingSystemApplication for test class com.evoting.evoting.system.EVotingSystemApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -99,7 +99,7 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.1.2)
 
-2023-09-14T15:20:07.004+01:00  WARN 17924 --- [    Test worker] ory$DuplicateJsonObjectContextCustomizer : 
+2023-09-14T17:16:11.039+01:00  WARN 18864 --- [    Test worker] ory$DuplicateJsonObjectContextCustomizer : 
 
 Found multiple occurrences of org.json.JSONObject on the class path:
 
@@ -108,25 +108,25 @@ Found multiple occurrences of org.json.JSONObject on the class path:
 
 You may wish to exclude one of them to ensure predictable runtime behavior
 
-2023-09-14T15:20:07.035+01:00  INFO 17924 --- [    Test worker] c.e.e.s.EVotingSystemApplicationTests    : Starting EVotingSystemApplicationTests using Java 19.0.2 with PID 17924 (started by Kehinde.Raji in C:\Users\kehinde.raji\Downloads\e-voting system\e-voting-system)
-2023-09-14T15:20:07.038+01:00  INFO 17924 --- [    Test worker] c.e.e.s.EVotingSystemApplicationTests    : No active profile set, falling back to 1 default profile: &quot;default&quot;
-2023-09-14T15:20:08.730+01:00  INFO 17924 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2023-09-14T15:20:08.916+01:00  INFO 17924 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 162 ms. Found 7 JPA repository interfaces.
-2023-09-14T15:20:09.819+01:00  INFO 17924 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2023-09-14T15:20:09.989+01:00  INFO 17924 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.6.Final
-2023-09-14T15:20:09.994+01:00  INFO 17924 --- [    Test worker] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
-2023-09-14T15:20:10.315+01:00  INFO 17924 --- [    Test worker] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
-2023-09-14T15:20:10.601+01:00  INFO 17924 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2023-09-14T15:20:10.631+01:00  INFO 17924 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2023-09-14T15:20:18.445+01:00  INFO 17924 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5423a17
-2023-09-14T15:20:18.447+01:00  INFO 17924 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2023-09-14T15:20:18.776+01:00  WARN 17924 --- [    Test worker] org.hibernate.dialect.Dialect            : HHH000511: The 5.5.0 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 5.7.0. Check the community dialects project for available legacy versions.
-2023-09-14T15:20:19.245+01:00  INFO 17924 --- [    Test worker] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
-2023-09-14T15:20:20.565+01:00  INFO 17924 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
-2023-09-14T15:20:56.523+01:00  INFO 17924 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2023-09-14T15:20:57.505+01:00  WARN 17924 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2023-09-14T15:20:57.923+01:00  INFO 17924 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@411e567e, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4e58eda2, org.springframework.security.web.context.SecurityContextHolderFilter@2a49753, org.springframework.security.web.header.HeaderWriterFilter@2396dc4e, org.springframework.web.filter.CorsFilter@75f9a35a, org.springframework.security.web.authentication.logout.LogoutFilter@52a3eba3, com.evoting.evoting.system.security.JwtAuthenticationFilter@62f3ad90, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@655d5285, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1784fcab, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@63e4bbf9, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7acbd3d0, org.springframework.security.web.session.SessionManagementFilter@63d43a5, org.springframework.security.web.access.ExceptionTranslationFilter@63e81ac6, org.springframework.security.web.access.intercept.AuthorizationFilter@6a08113d]
-2023-09-14T15:20:58.340+01:00  INFO 17924 --- [    Test worker] c.e.e.s.EVotingSystemApplicationTests    : Started EVotingSystemApplicationTests in 51.79 seconds (process running for 54.906)
+2023-09-14T17:16:11.055+01:00  INFO 18864 --- [    Test worker] c.e.e.s.EVotingSystemApplicationTests    : Starting EVotingSystemApplicationTests using Java 19.0.2 with PID 18864 (started by Kehinde.Raji in C:\Users\kehinde.raji\Downloads\e-voting system\e-voting-system)
+2023-09-14T17:16:11.055+01:00  INFO 18864 --- [    Test worker] c.e.e.s.EVotingSystemApplicationTests    : No active profile set, falling back to 1 default profile: &quot;default&quot;
+2023-09-14T17:16:11.914+01:00  INFO 18864 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-09-14T17:16:12.004+01:00  INFO 18864 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 84 ms. Found 7 JPA repository interfaces.
+2023-09-14T17:16:12.536+01:00  INFO 18864 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-09-14T17:16:12.612+01:00  INFO 18864 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.6.Final
+2023-09-14T17:16:12.612+01:00  INFO 18864 --- [    Test worker] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2023-09-14T17:16:12.793+01:00  INFO 18864 --- [    Test worker] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2023-09-14T17:16:12.952+01:00  INFO 18864 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2023-09-14T17:16:12.970+01:00  INFO 18864 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-09-14T17:16:14.998+01:00  INFO 18864 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6eaa6b0c
+2023-09-14T17:16:15.015+01:00  INFO 18864 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-09-14T17:16:15.287+01:00  WARN 18864 --- [    Test worker] org.hibernate.dialect.Dialect            : HHH000511: The 5.5.0 version for [org.hibernate.dialect.MySQLDialect] is no longer supported, hence certain features may not work properly. The minimum supported version is 5.7.0. Check the community dialects project for available legacy versions.
+2023-09-14T17:16:15.584+01:00  INFO 18864 --- [    Test worker] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2023-09-14T17:16:16.377+01:00  INFO 18864 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-09-14T17:16:24.756+01:00  INFO 18864 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-09-14T17:16:25.454+01:00  WARN 18864 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-09-14T17:16:25.767+01:00  INFO 18864 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4d20cbb5, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@74eae1e0, org.springframework.security.web.context.SecurityContextHolderFilter@63e81ac6, org.springframework.security.web.header.HeaderWriterFilter@3e5febe9, org.springframework.web.filter.CorsFilter@3c3357c7, org.springframework.security.web.authentication.logout.LogoutFilter@29767156, com.evoting.evoting.system.security.JwtAuthenticationFilter@61d4155b, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@f36c8b1, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@2396dc4e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7bb888b7, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@506d7fed, org.springframework.security.web.session.SessionManagementFilter@1fd73dcb, org.springframework.security.web.access.ExceptionTranslationFilter@2e04c89d, org.springframework.security.web.access.intercept.AuthorizationFilter@735dc133]
+2023-09-14T17:16:26.129+01:00  INFO 18864 --- [    Test worker] c.e.e.s.EVotingSystemApplicationTests    : Started EVotingSystemApplicationTests in 15.319 seconds (process running for 16.714)
 </pre>
 </span>
 </div>
@@ -138,7 +138,7 @@ You may wish to exclude one of them to ensure predictable runtime behavior
 <input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
 </label>
 </div>Generated by 
-<a href="http://www.gradle.org">Gradle 8.2.1</a> at Sep 14, 2023, 3:20:59 PM</p>
+<a href="http://www.gradle.org">Gradle 8.2.1</a> at Sep 14, 2023, 5:16:27 PM</p>
 </div>
 </div>
 </body>
