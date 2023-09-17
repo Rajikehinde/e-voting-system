@@ -106,7 +106,7 @@ public class VotersServiceImpl implements VotersService {
 
 
 
-    //implementation of Otp
+    //implementation of Otp sms message
 //        otpService.sendOtpTrial(savedVoters.getPhoneNumber());
         String emailMessage = "Welcome to e-voting system,\n\n"
                 + "You have successfully created your account. Please find your account details below:\n\n"

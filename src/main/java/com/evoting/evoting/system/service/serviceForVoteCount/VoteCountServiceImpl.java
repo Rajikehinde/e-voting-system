@@ -478,6 +478,7 @@ public class VoteCountServiceImpl implements VoteCountService {
                 .build();
     }
 
+    //a method for getting the list of the results in percentages
     @Override
     public ViewResultResponse viewPresidentialResultInPercentage() {
         List<Candidate> presidentialCandidates = candidatesRepository.findByVoteCategory(VoteCategory.PRESIDENCY);
@@ -509,6 +510,7 @@ public class VoteCountServiceImpl implements VoteCountService {
     }
 
 
+    // the method that calculates the percentage of the results
     private ViewResultResponse getResultFor(List<Candidate> candidates) {
         long total = candidates.stream().mapToLong(Candidate::getVoteCount).count();
         Map<String, String> result = new HashMap<>();
@@ -518,6 +520,7 @@ public class VoteCountServiceImpl implements VoteCountService {
         return new ViewResultResponse(result);
     }
 
+    //method that shows how election time was done
     private boolean confirmElectionTime(LocalTime startTime, LocalTime endTime){
         return !LocalTime.now().isBefore(startTime) && !LocalTime.now().isAfter(endTime);
     }
