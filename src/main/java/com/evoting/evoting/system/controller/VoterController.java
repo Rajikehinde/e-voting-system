@@ -22,7 +22,7 @@ public class VoterController {
     public List<Response> fetchAllVoters(){
         return votersService.fetchAllVoters();
     }
-    @PutMapping("/update/voter")
+    @PutMapping("/updateVoter")
     public Response updateVoters(@RequestBody VotersRequest votersRequest){
         return votersService.updateVoters(votersRequest);
     }

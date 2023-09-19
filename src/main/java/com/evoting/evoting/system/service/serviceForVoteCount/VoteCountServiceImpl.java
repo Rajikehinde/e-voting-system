@@ -55,21 +55,23 @@ public class VoteCountServiceImpl implements VoteCountService {
     @Autowired
     private Utils utils;
 
+    Election election = null;
+
     @Override
     public Response castVoteForPresidency(CastVoteRequest castVoteRequest) {
         //checking if voters and candidate exists in database
         boolean voterExists = votersRepository.existsByEmail(castVoteRequest.getEmail());
         boolean candidateExists = candidatesRepository.existsByEmail(castVoteRequest.getEmail());
         //finding candidate in the database and if not found throw a response not found so that it can be available to be voted for
-        Optional<Candidate> optionalCandidate = candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.PRESIDENCY, castVoteRequest.getParty());
-        if (optionalCandidate.isEmpty()) {
-            Response.builder()
-                    .code(ResponseUtils.CANDIDATE_NOT_EXISTED_CODE)
-                    .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
-                    .build();
-        }
+        Optional<Candidate> candidate = Optional.ofNullable(candidatesRepository.findFirstByVoteCategoryAndParty(VoteCategory.PRESIDENCY, castVoteRequest.getParty()).orElseThrow(() -> new UsernameNotFoundException("Candidate not found")));
+//        if (optionalCandidate.isEmpty()) {
+//            Response.builder()
+//                    .code(ResponseUtils.CANDIDATE_NOT_EXISTED_CODE)
+//                    .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
+//                    .build();
+//        }
         //finding candidate if existing in database
-        Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
+//        Candidate candidate = optionalCandidate
 
         //if voter exists, then find it, and then all other conditions comes after.
         if (voterExists) {
@@ -82,33 +84,36 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
             //if voter hasn't voted, then find the category the available candidate is contesting for
-            Election election = electionRepository.findByElectionName("PRESIDENCY");
+            election = electionRepository.findByElectionName("PRESIDENCY");
 
             //after getting the category of the candidate, it is time to vote but before voting the time of the election has to be checked if it is
             //within time for the voter to vote for the candidate, if it is still on the voting can still be done
-            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())){
-                candidate.setVoteCategory(VoteCategory.PRESIDENCY);
-                candidate.setVoteCount(candidate.getVoteCount() + 1);
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.get().setVoteCategory(VoteCategory.PRESIDENCY);
+                candidate.get().setVoteCount(candidate.get().getVoteCount() + 1);
                 voter.setHasVotedForPresident(true);
-                candidatesRepository.save(candidate);
+                candidatesRepository.save(candidate.get());
                 VoteCount voteCount = VoteCount.builder()
-                        .candidate(candidate)
+                        .candidate(candidate.get())
                         .voter(voter)
                         .voterCount(1L)
                         .build();
                 //saving the vote count in the database
                 voteCountRepository.save(voteCount);
-
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
                 //sending email to the voter for voting
                 EmailDetails emailDetails = EmailDetails.builder()
                         .recipient(voter.getEmail())
                         .subject("Voting")
-                        .messageBody("Thank you for exercising your franchise.\n" +
-                                "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
+                        .messageBody(emailMessage)
                         .build();
                 emailService.sendSimpleEmail(emailDetails);
                 //if the time isn't withing the election timestamped then throw a response voting can't be done anymore
-            }else{
+            } else {
                 return Response.builder()
                         .code(ResponseUtils.ELECTION_CODE)
                         .message(ResponseUtils.ELECTION_MESSAGE)
@@ -118,7 +123,7 @@ public class VoteCountServiceImpl implements VoteCountService {
 
         //checking if candidate exists also in other to be able to vote too for other candidates as a voter, then find it, and then all other conditions comes after.
         else if (candidateExists) {
-            Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(()-> new RuntimeException("Candidate not found"));
+            Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(() -> new RuntimeException("Candidate not found"));
             //check if found voter has already voted, if yes, throw already voted
             if (can.isHasVotedForPresident()) {
                 return Response.builder()
@@ -127,27 +132,38 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
 
-            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            can.setHasVotedForPresident(true);
+            election = electionRepository.findByElectionName("PRESIDENCY");
 
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(null)
-                    .voterCount(1L)
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.get().setVoteCategory(VoteCategory.PRESIDENCY);
+                candidate.get().setVoteCount(candidate.get().getVoteCount() + 1);
+                can.setHasVotedForPresident(true);
+
+                candidatesRepository.save(candidate.get());
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate.get())
+                        .voter(null)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+
+                EmailDetails emailDetail = EmailDetails.builder()
+                        .recipient(can.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetail);
+            }
+            return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetail = EmailDetails.builder()
-                    .recipient(can.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetail);
-
         }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
@@ -166,6 +182,7 @@ public class VoteCountServiceImpl implements VoteCountService {
                     .code(ResponseUtils.CANDIDATE_NOT_EXISTED_MESSAGE)
                     .build();
         }
+//        Election election = null;
         //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
         if (voterExists) {
@@ -177,27 +194,37 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
 //            Voter savedVotes = votersRepository.save(voter);
+            election = electionRepository.findByElectionName("GOVERNOR");
 
-            candidate.setVoteCategory(VoteCategory.GOVERNOR);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            voter.setHasVotedForGovernor(true);
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(voter)
-                    .voterCount(1L)
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.GOVERNOR);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                voter.setHasVotedForGovernor(true);
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(voter)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+
+                String emailMessage = "Welcome to e-voting system \n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetails = EmailDetails.builder()
+                        .recipient(voter.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetails);
+            }else
+                return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetails = EmailDetails.builder()
-                    .recipient(voter.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetails);
-
         } else if (candidateExists) {
             Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(() -> new RuntimeException("Candidate not found"));
             if (can.isHasVotedForGovernor()) {
@@ -206,28 +233,38 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .message(ResponseUtils.VOTE_ALREADY_CASTED_MESSAGE)
                         .build();
             }
+            election = electionRepository.findByElectionName("GOVERNOR");
 
-            candidate.setVoteCategory(VoteCategory.GOVERNOR);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            can.setHasVotedForGovernor(true);
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.GOVERNOR);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                can.setHasVotedForGovernor(true);
 
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(null)
-                    .voterCount(1L)
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(null)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetail = EmailDetails.builder()
+                        .recipient(can.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetail);
+            }
+            return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetail = EmailDetails.builder()
-                    .recipient(can.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetail);
-
         }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
@@ -249,6 +286,8 @@ public class VoteCountServiceImpl implements VoteCountService {
         }
         //finding candidate if existing in database
         Candidate candidate = optionalCandidate.orElseThrow(() -> new UsernameNotFoundException("Candidate not found"));
+//        Election election = null;
+
         if (voterExists) {
             Voter voter = votersRepository.findByEmail(castVoteRequest.getEmail());
             if (voter.isHasVotedForSenateMember()) {
@@ -258,27 +297,37 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
 //            Voter savedVotes = votersRepository.save(voter);
+            election = electionRepository.findByElectionName("SENATE");
 
-            candidate.setVoteCategory(VoteCategory.SENATE);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            voter.setHasVotedForSenateMember(true);
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(voter)
-                    .voterCount(1L)
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.SENATE);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                voter.setHasVotedForSenateMember(true);
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(voter)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetails = EmailDetails.builder()
+                        .recipient(voter.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetails);
+            }else
+                return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetails = EmailDetails.builder()
-                    .recipient(voter.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetails);
-
         } else if (candidateExists) {
             Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(() -> new RuntimeException("Candidate not found"));
             if (can.isHasVotedForSenateMember()) {
@@ -288,27 +337,38 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
 
-            candidate.setVoteCategory(VoteCategory.GOVERNOR);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            can.setHasVotedForSenateMember(true);
+            election = electionRepository.findByElectionName("SENATE");
 
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(null)
-                    .voterCount(1L)
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.SENATE);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                can.setHasVotedForSenateMember(true);
+
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(null)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetail = EmailDetails.builder()
+                        .recipient(can.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetail);
+            }
+            return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetail = EmailDetails.builder()
-                    .recipient(can.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetail);
-
         }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
@@ -339,27 +399,37 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
 //            Voter savedVotes = votersRepository.save(voter);
+            election = electionRepository.findByElectionName("HOUSE_OF_ASSEMBLY");
 
-            candidate.setVoteCategory(VoteCategory.HOUSE_OF_ASSEMBLY);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            voter.setHasVotedForHouseOfAssemblyMember(true);
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(voter)
-                    .voterCount(1L)
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.HOUSE_OF_ASSEMBLY);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                voter.setHasVotedForHouseOfAssemblyMember(true);
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(voter)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetails = EmailDetails.builder()
+                        .recipient(voter.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetails);
+            }else
+                return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetails = EmailDetails.builder()
-                    .recipient(voter.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetails);
-
         } else if (candidateExists) {
             Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(() -> new RuntimeException("Candidate not found"));
             if (can.isHasVotedForHouseOfAssemblyMember()) {
@@ -369,27 +439,39 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
 
-            candidate.setVoteCategory(VoteCategory.GOVERNOR);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            can.setHasVotedForHouseOfAssemblyMember(true);
+            election = electionRepository.findByElectionName("HOUSE_OF_ASSEMBLY");
 
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(null)
-                    .voterCount(1L)
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.HOUSE_OF_ASSEMBLY);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                can.setHasVotedForHouseOfAssemblyMember(true);
+
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(null)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetail = EmailDetails.builder()
+                        .recipient(can.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetail);
+
+            }
+            return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetail = EmailDetails.builder()
-                    .recipient(can.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetail);
-
         }
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
@@ -419,27 +501,37 @@ public class VoteCountServiceImpl implements VoteCountService {
                         .build();
             }
 //            Voter savedVotes = votersRepository.save(voter);
+            election = electionRepository.findByElectionName("HOUSE_OF_REPRESENTATIVE");
 
-            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            voter.setHasVotedForHouseOfRepMember(true);
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(voter)
-                    .voterCount(1L)
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.HOUSE_OF_REPRESENTATIVE);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                voter.setHasVotedForHouseOfRepMember(true);
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(voter)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
+
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetails = EmailDetails.builder()
+                        .recipient(voter.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetails);
+            }
+            return Response.builder()
+                    .code(ResponseUtils.VOTE_CASTED_CODE)
+                    .message(ResponseUtils.VOTE_CASTED_MESSAGE)
                     .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
-
-            EmailDetails emailDetails = EmailDetails.builder()
-                    .recipient(voter.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + voter.getFirstName() + " " + voter.getMiddleName() + " " + voter.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetails);
-
         }else if (candidateExists) {
             Candidate can = candidatesRepository.findByEmail(castVoteRequest.getEmail()).orElseThrow(()-> new RuntimeException("Candidate not found"));
             if (can.isHasVotedForHouseOfRepMember()) {
@@ -450,28 +542,39 @@ public class VoteCountServiceImpl implements VoteCountService {
             }
 //            Candidate savedVot = candidatesRepository.save(can);
 
-            candidate.setVoteCategory(VoteCategory.PRESIDENCY);
-            candidate.setVoteCount(candidate.getVoteCount() + 1);
-            can.setHasVotedForHouseOfRepMember(true);
+            election = electionRepository.findByElectionName("HOUSE_OF_REPRESENTATIVE");
 
-            candidatesRepository.save(candidate);
-            VoteCount voteCount = VoteCount.builder()
-                    .candidate(candidate)
-                    .voter(null)
-                    .voterCount(1L)
-                    .build();
-            //saving the vote count in the database
-            voteCountRepository.save(voteCount);
+            if (confirmElectionTime(election.getElectionTimeStart(), election.getElectionTimeOut())) {
+                candidate.setVoteCategory(VoteCategory.HOUSE_OF_REPRESENTATIVE);
+                candidate.setVoteCount(candidate.getVoteCount() + 1);
+                can.setHasVotedForHouseOfRepMember(true);
 
-            EmailDetails emailDetail = EmailDetails.builder()
-                    .recipient(can.getEmail())
-                    .subject("Voting")
-                    .messageBody("Thank you for exercising your franchise.\n" +
-                            "Voter's Name: " + can.getFirstName() + " " + can.getMiddleName() + " " + can.getLastName())
-                    .build();
-            emailService.sendSimpleEmail(emailDetail);
+                candidatesRepository.save(candidate);
+                VoteCount voteCount = VoteCount.builder()
+                        .candidate(candidate)
+                        .voter(null)
+                        .voterCount(1L)
+                        .build();
+                //saving the vote count in the database
+                voteCountRepository.save(voteCount);
 
-        }
+                String emailMessage = "Welcome to e-voting system,\n\n"
+                        + "Congratulations! Thank you for exercising your franchise \n\n"
+                        + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                        + "Telephone: 08183086849\n"
+                        + "electoral commission";
+                EmailDetails emailDetail = EmailDetails.builder()
+                        .recipient(can.getEmail())
+                        .subject("Voting")
+                        .messageBody(emailMessage)
+                        .build();
+                emailService.sendSimpleEmail(emailDetail);
+            }
+            return Response.builder()
+                    .code(ResponseUtils.ELECTION_CODE)
+                    .message(ResponseUtils.ELECTION_MESSAGE)
+                    .build();        }
+
         return Response.builder()
                 .code(ResponseUtils.VOTE_CASTED_CODE)
                 .message(ResponseUtils.VOTE_CASTED_MESSAGE)

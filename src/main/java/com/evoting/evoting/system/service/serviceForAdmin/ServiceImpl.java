@@ -73,12 +73,16 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
         //implementation of OTP
 //        otpService.sendOtpTrial(savedAdmin.getPhoneNumber());
 
+        String emailMessage = "Welcome to e-voting system,\n\n"
+                + "Congratulations! your account has been successfully created. Please find your account details below:\n\n"
+                + "Your account name is: " + savedAdmin.getFirstName() + " " + savedAdmin.getLastName() + "\n"
+                + "Your username is: " + savedAdmin.getUsername() + "\n\n"
+                + "electoral commission";
         //appending email to the created admin
         EmailDetails emailDetails = EmailDetails.builder()
-                .subject("Admin")
+                .subject("Admin Registration")
                 .recipient(savedAdmin.getEmail())
-                .messageBody("This user successfully registered as the admin.\n" +
-                        "Admin Name: " + savedAdmin.getFirstName() + " " + savedAdmin.getMiddleName() + " " + savedAdmin.getLastName())
+                .messageBody(emailMessage)
                 .build();
         emailService.sendSimpleEmail(emailDetails);
         //returning a response to the created admin
@@ -128,20 +132,22 @@ public class ServiceImpl implements com.evoting.evoting.system.service.serviceFo
                         administration.setMiddleName(adminRequest.getMiddleName());
                         administration.setLastName(adminRequest.getLastName());
                         administration.setEmail(adminRequest.getEmail());
-                        administration.setUsername(adminRequest.getUsername());
-                        administration.setPassword(passwordEncoder.encode(adminRequest.getPassword()));
                         administration.setPhoneNumber(adminRequest.getPhoneNumber());
                         administration.setDateOfBirth(adminRequest.getDateOfBirth());
 
                         //saving the update in the database
         Administration savedAdmin = administrationRepository.save(administration);
 
+        String emailMessage = "Welcome to e-voting system,\n\n"
+                + "Congratulations! your account has been successfully updated. Please find your account details below:\n\n"
+                + "Your account name is: " + savedAdmin.getFirstName() + " " + savedAdmin.getLastName() + "\n"
+                + "Your username is: " + savedAdmin.getUsername() + "\n\n"
+                + "electoral commission";
         //appending email to the updated admin
         EmailDetails emailDetails = EmailDetails.builder()
-                .subject("Admin")
+                .subject("Admin Update")
                 .recipient(savedAdmin.getEmail())
-                .messageBody("This profile successfully updated.\n" +
-                        "Admin Name: " + savedAdmin.getFirstName() + " " + savedAdmin.getMiddleName() + " " + savedAdmin.getLastName())
+                .messageBody(emailMessage)
                 .build();
         emailService.sendSimpleEmail(emailDetails);
 

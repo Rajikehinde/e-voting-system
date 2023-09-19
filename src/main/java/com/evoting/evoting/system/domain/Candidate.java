@@ -27,6 +27,7 @@ public class Candidate {
     private String biography;
     private String email;
     private String username;
+    private String cardNo;
     private String password;
     private String phoneNumber;
     private long voteCount;

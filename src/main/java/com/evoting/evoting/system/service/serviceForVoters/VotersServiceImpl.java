@@ -109,18 +109,16 @@ public class VotersServiceImpl implements VotersService {
     //implementation of Otp sms message
 //        otpService.sendOtpTrial(savedVoters.getPhoneNumber());
         String emailMessage = "Welcome to e-voting system,\n\n"
-                + "You have successfully created your account. Please find your account details below:\n\n"
+                + "Congratulations! you have successfully created your account. Please find your account details below:\n\n"
                 + "Your account name is: " + voters.getFirstName() + " " + voters.getLastName() + "\n"
-                + "Your username is: " + voters.getUsername() + "\n"
-                + "Please click the following link to verify your account:\n"
-//                + "http://localhost:8080/api/verifyAccount/"+generateVerificationToken() + "\n\n"
-                + "Thank you for joining us!\n\n"
-                + "Best regards,\n"
+                + "Your username is: " + voters.getUsername() + "\n\n"
+                + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                + "Telephone: 08183086849\n"
                 + "electoral commission";
 
         //appending email response to the account
         EmailDetails emailDetails = EmailDetails.builder()
-                .subject("Voter")
+                .subject("Voter Registration")
                 .recipient(savedVoters.getEmail())
                 .messageBody(emailMessage)
                 .cardNo(savedVoters.getCardNo())
@@ -180,7 +178,6 @@ public class VotersServiceImpl implements VotersService {
         voter.setLastName(votersRequest.getLastName());
         voter.setEmail(votersRequest.getEmail());
         voter.setUsername(votersRequest.getUsername());
-        voter.setPassword(passwordEncoder.encode(votersRequest.getPassword()));
         voter.setDateOfBirth(votersRequest.getDateOfBirth());
         voter.setPhoneNumber(votersRequest.getPhoneNumber());
         voter.setGender(Gender.valueOf(votersRequest.getGender()));
@@ -190,13 +187,18 @@ public class VotersServiceImpl implements VotersService {
 
         //saving updated voter in database
         Voter savedVotes = votersRepository.save(voter);
-
+        String emailMessage = "Welcome to e-voting system,\n\n"
+                + "Congratulations! your account has been successfully updated. Please find your account details below:\n\n"
+                + "Your account name is: " + savedVotes.getFirstName() + " " + savedVotes.getLastName() + "\n"
+                + "Your username is: " + savedVotes.getUsername() + "\n\n"
+                + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                + "Telephone: 08183086849\n"
+                + "electoral commission";
         //appending email response to the account
         EmailDetails emailDetails = EmailDetails.builder()
-                .subject("Voter")
+                .subject("Voter Update")
                 .recipient(savedVotes.getEmail())
-                .messageBody("Voter profile updated \n" +
-                        "Voter Name: " + savedVotes.getFirstName() + " " + savedVotes.getMiddleName() + " " + savedVotes.getLastName())
+                .messageBody(emailMessage)
                 .build();
         emailService.sendSimpleEmail(emailDetails);
         //returning a response to updated voter

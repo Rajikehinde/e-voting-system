@@ -14,7 +14,7 @@ public class ResponseUtils {
     public static final String USER_DELETE_CODE = "006";
     public static final String USER_DELETE_MESSAGE = "This profile successfully deleted";
     public static final String VOTE_CASTED_CODE = "007";
-    public static final String VOTE_CASTED_MESSAGE = "You have successfully casted your vote for your preferred presidential candidate";
+    public static final String VOTE_CASTED_MESSAGE = "You have successfully casted your vote for your preferred candidate";
     public static final String CANDIDATE_ALREADY_EXISTED_CODE = "008";
     public static final String CANDIDATE_ALREADY_EXISTED_MESSAGE = "Candidate already existed for this category and this party";
     public static final String CANDIDATE_NOT_EXISTED_CODE = "009";

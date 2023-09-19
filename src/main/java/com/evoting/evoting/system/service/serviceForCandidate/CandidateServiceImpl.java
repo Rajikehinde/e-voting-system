@@ -82,12 +82,19 @@ public class CandidateServiceImpl implements CandidateService{
             //implementation of OTP
 //            otpService.sendOtpTrial(savedCandidate.getPhoneNumber());
 
+            String emailMessage = "Welcome to e-voting system,\n\n"
+                    + "Congratulations! your account has been successfully updated. Please find your account details below:\n\n"
+                    + "Your account name is: " + savedCandidate.getFirstName() + " " + savedCandidate.getLastName() + "\n"
+                    + "Your username is: " + savedCandidate.getUsername() + "\n\n"
+                    + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                    + "Telephone: 08183086849\n"
+                    + "electoral commission";
             //appending email to the candidate
             EmailDetails emailDetails = EmailDetails.builder()
                     .subject("Candidate")
                     .recipient(savedCandidate.getEmail())
-                    .messageBody("Candidate profile created.\n" +
-                            "Candidate Name: " + savedCandidate.getFirstName() + " " + savedCandidate.getMiddleName() + " " + savedCandidate.getLastName())
+                    .messageBody(emailMessage)
+                    .cardNo(savedCandidate.getCardNo())
                     .build();
             emailService.sendSimpleEmail(emailDetails);
 
@@ -142,7 +149,6 @@ public class CandidateServiceImpl implements CandidateService{
         candidate.setDateOfBirth(candidateRequest.getDateOfBirth());
         candidate.setEmail(candidateRequest.getEmail());
         candidate.setUsername(candidateRequest.getUsername());
-        candidate.setPassword(passwordEncoder.encode(candidateRequest.getPassword()));
         candidate.setPhoneNumber(candidateRequest.getPhoneNumber());
         candidate.setCampaignWebsite(candidateRequest.getCampaignWebsite());
         candidate.setParty(candidateRequest.getParty());
@@ -153,12 +159,17 @@ public class CandidateServiceImpl implements CandidateService{
         //saving the update in the database
         Candidate savedCandidate = candidatesRepository.save(candidate);
 
+        String emailMessage = "Welcome to e-voting system,\n\n"
+                + "Congratulations! your account has been successfully updated. Please find your account details below:\n\n"
+                + "Your account name is: " + savedCandidate.getFirstName() + " " + savedCandidate.getLastName() + "\n\n"
+                + "if you have any questions, please send your email to kehinderaji28@gmail.com and we would be happy to answer them.\n\n"
+                + "Telephone: 08183086849\n"
+                + "electoral commission";
                 //appending email to the updated candidate
         EmailDetails emailDetails = EmailDetails.builder()
                 .recipient(savedCandidate.getEmail())
                 .subject("Candidate")
-                .messageBody("Candidate profile updated.\n" +
-                        "Candidate Name: " + savedCandidate.getFirstName() + " " + savedCandidate.getMiddleName() + " " + savedCandidate.getLastName())
+                .messageBody(emailMessage)
                 .build();
         emailService.sendSimpleEmail(emailDetails);
 
